@@ -1,0 +1,25 @@
+id: hybrid_relocation
+employer:
+  employer: Cascade Cloud Corp.
+  matched: true
+  transfer_likelihood: high
+  years: [{fiscal_year: 2025, lca_certified: 880, transfers: 190, perm_certified: 150}]
+jd: |-
+  Software Engineer II, Storage
+  Cascade Cloud · Seattle, WA (hybrid)
+
+  Our storage team builds the systems that keep petabytes of customer data safe. You'll write Go and Rust services that run across thousands of machines.
+
+  Minimum qualifications
+  - 3+ years of experience with Go, Rust, or C++
+  - Experience with distributed systems
+
+  This role is hybrid, three days a week in our Seattle office. Candidates must relocate to Seattle before their start date.
+
+  The base salary range for this position is $145,000 to $205,000.
+expect:
+  verdict: apply_with_caution
+  must_flags: [RELOCATION]
+  must_not_flags: [ITAR_EAR, CONTRACT]
+  employment_type: fte
+  required_skills_include: [go]

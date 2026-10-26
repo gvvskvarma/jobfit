@@ -498,6 +498,16 @@ Regex/phrase lists with tests (≥ 3 positive and 3 negative examples each). All
 - **CAP_EXEMPT_HINT** (positive): added when the matched employer has `capExemptHint`.
 - The LLM step (`screen_llm`) only **adds** flags with a quoted `evidence` sentence that must appear verbatim in the JD (checked in code; otherwise the flag is dropped). It can never remove a rule flag. Ambiguous phrases like "must have valid US work authorization" become `warn` with an explanation.
 
+**Decisions made while building M2:**
+- `WORK_AUTH_AMBIGUOUS` (warn) is the code the LLM uses for wording like "must have valid US work authorization". Every flag carries `source`: `rule`, `llm` or `data`.
+- A positive phrase only counts when no negation appears earlier in the same clause, so "unable to sponsor new visas, but H-1B transfers are welcome" yields both NO_SPONSORSHIP and TRANSFER_OK.
+- For an H-1B holder, NO_SPONSORSHIP together with TRANSFER_OK is a `warn`, not a `block`: the employer can't sponsor a new visa but will take a transfer.
+- RELOCATION is phrase-based ("must relocate", "relocation required") because the data model has no user location yet.
+- SENIORITY_MISMATCH needs the user's experience years, which come from the experience bank (M3); until then it never fires.
+- "Public trust" only counts in clearance contexts ("public trust clearance/position"), so "earn the public trust" doesn't block a job.
+- The report summary is a deterministic template over the flags and employer record, so it can never claim something the flags don't.
+- The screening steps are plain functions in M2 (`app/screen.py`); M4 wraps them as LangGraph nodes when interrupts and checkpointing arrive.
+
 **Weak employer signal:** any of `transfer_likelihood ∈ {low, unknown}`, `willful_violator = true`, or (for H-1B holders) zero `changeEmployer` across the last 2 FYs.
 
 **Verdict logic:** any `block` → `skip`. Any `warn`, or a weak employer signal, → `apply_with_caution`. Otherwise `apply`.
@@ -555,6 +565,8 @@ Pure function of `visaStatus`, `authEndDate` and `EmploymentGap[]`, computed in 
 - **Draft cases** (from M6): 5 JDs × {answers, cover letter, interview prep}. Gate: 100% of `GroundedText` items pass grounding, and questions with no fitting evidence return `story: null`.
 - **Metrics:** flag precision/recall per code, verdict accuracy, extraction F1 for skills, grounding pass rate (target 100% after repair), p95 latency, cost per run (Langfuse).
 - **CI gate:** fail the build if verdict accuracy < 90%, ITAR/NO_SPONSORSHIP recall < 100%, or grounding pass < 100%.
+- Cases may stub the employer record (`employer:`) and the user (`user:`), so verdicts don't depend on what's loaded in the database.
+- Run with `uv run python -m evals.run_evals`. `JOBFIT_LLM=record` saves each LLM response under `evals/fixtures/`; CI runs `JOBFIT_LLM=replay`. Fixture keys include the prompt text, so a prompt change fails replay until fixtures are re-recorded.
 - **Publish** the latest eval table in the README.
 
 ---

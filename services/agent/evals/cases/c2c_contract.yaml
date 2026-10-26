@@ -1,0 +1,18 @@
+id: c2c_contract
+jd: |-
+  Java Developer - 6 Month Contract
+  Client: Fortune 500 bank (via Apex Talent Partners)
+  Location: Charlotte, NC (onsite)
+
+  Must have:
+  - 8+ years Java, Spring Boot, microservices
+  - Kafka and Oracle experience
+
+  This is a 6-month contract with possible extension. C2C only, rate $65/hr.
+  Please send resumes with visa status and current location.
+expect:
+  verdict: apply_with_caution
+  must_flags: [C2C_ONLY, CONTRACT]
+  must_not_flags: [SPONSORSHIP_OFFERED]
+  employment_type: contract_c2c
+  required_skills_include: [java, spring boot]

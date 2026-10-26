@@ -1,0 +1,22 @@
+id: no_sponsorship_plain
+jd: |-
+  Frontend Engineer
+  Brightcart · Remote (US)
+
+  Brightcart helps independent grocers sell online. We're hiring a frontend engineer to own our storefront experience.
+
+  What you'll do
+  • Build features in React and TypeScript
+  • Improve Core Web Vitals across the storefront
+  • Partner with design on our component library
+
+  About you: 3+ years of React, strong TypeScript, and an eye for detail.
+
+  Brightcart will not sponsor employment visas for this position.
+  Salary range: $130,000 - $155,000.
+expect:
+  verdict: skip
+  must_flags: [NO_SPONSORSHIP]
+  must_not_flags: [SPONSORSHIP_OFFERED, TRANSFER_OK]
+  employment_type: fte
+  required_skills_include: [react, typescript]

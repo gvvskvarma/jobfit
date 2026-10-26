@@ -1,0 +1,24 @@
+id: visa_transfers_only
+user: {visa_status: H1B}
+employer:
+  employer: Northwind Analytics Inc.
+  matched: true
+  transfer_likelihood: high
+  years: [{fiscal_year: 2025, lca_certified: 210, transfers: 64, perm_certified: 40}]
+jd: |-
+  Full Stack Engineer
+  Northwind Analytics · Dallas, TX
+
+  Join our product team building dashboards for retail analytics using React, Node.js and GraphQL.
+
+  Requirements: 5+ years full stack experience; React and Node.js required.
+
+  Immigration: We are unable to sponsor new visas, but H-1B transfers are welcome.
+
+  Pay: $140,000 - $165,000 plus bonus.
+expect:
+  verdict: apply_with_caution
+  must_flags: [NO_SPONSORSHIP, TRANSFER_OK]
+  must_not_flags: [CONTRACT]
+  employment_type: fte
+  required_skills_include: [react, node.js]

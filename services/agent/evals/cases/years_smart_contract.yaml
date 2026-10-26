@@ -1,0 +1,25 @@
+id: years_smart_contract
+employer:
+  employer: Chainvault Labs Inc.
+  matched: true
+  transfer_likelihood: high
+  years: [{fiscal_year: 2025, lca_certified: 48, transfers: 12, perm_certified: 9}]
+jd: |-
+  Senior Blockchain Engineer
+  Chainvault Labs · San Francisco, CA (remote friendly)
+
+  YEARS OF EXPERIENCE: 5+
+  You'll design and audit smart contract systems in Solidity and build our TypeScript SDK. You love to learn and keep an ear to the ground for new protocols.
+
+  - 5+ years of software engineering experience
+  - Experience with smart contract development and security reviews
+  - Strong TypeScript
+
+  Visa sponsorship is available for this role.
+  Salary: $170,000 - $210,000 + tokens.
+expect:
+  verdict: apply
+  must_flags: [SPONSORSHIP_OFFERED]
+  must_not_flags: [ITAR_EAR, CONTRACT, CLEARANCE]
+  employment_type: fte
+  required_skills_include: [solidity, typescript]
