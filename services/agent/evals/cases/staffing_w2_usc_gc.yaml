@@ -1,0 +1,17 @@
+id: staffing_w2_usc_gc
+jd: |-
+  Data Engineer
+  Location: Austin, TX (Hybrid)
+  Duration: 12 months
+  Employment type: W2 only
+
+  Our client, a leading energy company, needs a Data Engineer with strong Spark, Databricks and Python skills.
+
+  USC/GC only. No third parties.
+  Pay rate: $70/hr on W2.
+expect:
+  verdict: skip
+  must_flags: [GC_REQUIRED, W2_ONLY]
+  must_not_flags: [SPONSORSHIP_OFFERED]
+  employment_type: contract_w2
+  required_skills_include: [spark, python]

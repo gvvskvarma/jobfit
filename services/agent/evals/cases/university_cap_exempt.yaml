@@ -1,0 +1,23 @@
+id: university_cap_exempt
+user: {visa_status: OPT}
+employer:
+  employer: Lakeshore State University
+  matched: true
+  cap_exempt_hint: true
+  transfer_likelihood: medium
+  years: [{fiscal_year: 2025, lca_certified: 140, transfers: 3, perm_certified: 22}]
+jd: |-
+  Research Software Engineer
+  Lakeshore State University, Department of Genomics · Madison, WI
+
+  Develop and maintain data pipelines and web tools that help researchers analyze sequencing data.
+
+  Required: Bachelor's degree in computer science or related field; 2+ years of Python; experience with Linux and workflow tools such as Snakemake or Nextflow.
+
+  Salary: $82,000 - $95,000, commensurate with experience. The university sponsors H-1B visas for eligible positions.
+expect:
+  verdict: apply
+  must_flags: [CAP_EXEMPT_HINT]
+  must_not_flags: [NO_SPONSORSHIP, LOW_PAY]
+  employment_type: fte
+  required_skills_include: [python]

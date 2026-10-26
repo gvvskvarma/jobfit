@@ -1,0 +1,19 @@
+id: citizen_only
+jd: |-
+  Software Developer (Benefits Modernization)
+  Civic Digital Partners · Washington, DC (hybrid)
+
+  Help modernize a federal benefits system using Java and React.
+
+  - 3+ years of Java and Spring
+  - Experience with React
+
+  Due to federal contract requirements, candidates must be U.S. citizens. Ability to pass a background check is required.
+
+  Pay range: $115,000 - $140,000.
+expect:
+  verdict: skip
+  must_flags: [CITIZEN_ONLY]
+  must_not_flags: [SPONSORSHIP_OFFERED]
+  employment_type: fte
+  required_skills_include: [java, react]

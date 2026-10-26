@@ -1,0 +1,17 @@
+id: hourly_low_pay
+jd: |-
+  Junior QA Analyst
+  TestRight Solutions · Remote
+
+  Help us test web and mobile apps for our clients. You'll write test cases, run regression suites and report bugs in Jira.
+
+  - 1+ years of manual or automated testing
+  - Familiarity with Selenium is a plus
+
+  This is a full-time role. Pay: $24 - $27 per hour.
+expect:
+  verdict: apply_with_caution
+  must_flags: [LOW_PAY]
+  must_not_flags: [CONTRACT, ITAR_EAR]
+  employment_type: fte
+  required_skills_include: []

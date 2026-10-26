@@ -1,0 +1,28 @@
+id: clean_remote_fte
+employer:
+  employer: Fernway Software Inc.
+  matched: true
+  transfer_likelihood: high
+  years:
+    - {fiscal_year: 2024, lca_certified: 320, transfers: 70, perm_certified: 55}
+    - {fiscal_year: 2025, lca_certified: 365, transfers: 88, perm_certified: 61}
+  wage_band: {title_bucket: frontend, worksite_state: null, n: 41, p25: 128000, median: 141000, p75: 158000}
+jd: |-
+  Senior Frontend Engineer
+  Fernway · Remote (United States)
+
+  Fernway makes scheduling software for clinics. You'll lead frontend work on our patient booking flow.
+
+  You have
+  • 5+ years building production React apps
+  • Deep TypeScript and accessibility experience
+  • Experience with design systems
+
+  We offer visa sponsorship and support H-1B transfers.
+  Compensation: $150,000 - $175,000 base, equity, and full benefits.
+expect:
+  verdict: apply
+  must_flags: [SPONSORSHIP_OFFERED, TRANSFER_OK]
+  must_not_flags: [NO_SPONSORSHIP, LOW_PAY, CONTRACT]
+  employment_type: fte
+  required_skills_include: [react, typescript]

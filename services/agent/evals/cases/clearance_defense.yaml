@@ -1,0 +1,19 @@
+id: clearance_defense
+jd: |-
+  Cloud DevOps Engineer
+  Sentinel Federal Solutions · Arlington, VA (onsite)
+
+  Support mission-critical AWS GovCloud environments for a federal customer.
+
+  Requirements:
+  - Active Secret clearance required; TS/SCI preferred
+  - 5+ years of AWS, Terraform, and Kubernetes
+  - Security+ certification
+
+  Salary: $150,000 - $185,000.
+expect:
+  verdict: skip
+  must_flags: [CLEARANCE]
+  must_not_flags: [SPONSORSHIP_OFFERED]
+  employment_type: fte
+  required_skills_include: [aws, terraform]

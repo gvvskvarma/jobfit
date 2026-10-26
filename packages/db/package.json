@@ -10,7 +10,8 @@
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "lint": "eslint .",
-    "typecheck": "prisma generate && tsc --noEmit",
+    "postinstall": "prisma generate",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {

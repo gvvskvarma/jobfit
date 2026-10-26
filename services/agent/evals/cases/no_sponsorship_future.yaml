@@ -1,0 +1,20 @@
+id: no_sponsorship_future
+jd: |-
+  Backend Engineer (Python)
+  Ledgerly · New York, NY (hybrid, 3 days in office)
+
+  Ledgerly builds accounting automation for small businesses. You'll design APIs and data pipelines in Python and PostgreSQL.
+
+  Qualifications:
+  - 4+ years building backend services in Python
+  - Experience with PostgreSQL and AWS
+
+  Candidates must be authorized to work in the United States without the need for employer sponsorship now or in the future.
+
+  Base pay: $150,000 to $180,000.
+expect:
+  verdict: skip
+  must_flags: [NO_SPONSORSHIP]
+  must_not_flags: [SPONSORSHIP_OFFERED]
+  employment_type: fte
+  required_skills_include: [python, postgresql]

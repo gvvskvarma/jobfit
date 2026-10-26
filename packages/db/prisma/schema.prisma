@@ -261,3 +261,11 @@ model DatasetVersion {
 
   @@unique([source, fiscalYear])
 }
+
+/// parse_jd results keyed by a hash of the posting text, model and prompts (SPEC 8.8),
+/// so the same posting is never parsed twice. Shared across users; holds no user data.
+model ParsedJdCache {
+  hash      String   @id
+  parsed    Json
+  createdAt DateTime @default(now())
+}

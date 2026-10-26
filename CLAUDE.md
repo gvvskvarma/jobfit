@@ -8,7 +8,7 @@ Read `docs/SPEC.md` first. It is the source of truth for scope, data model, agen
 - Run before saying you're done:
   - `pnpm turbo run lint typecheck test`
   - `cd services/agent && uv run ruff check . && uv run pytest`
-  - From M2 on: `uv run python evals/run_evals.py` (must meet the gate in SPEC §9)
+  - From M2 on: `JOBFIT_LLM=replay uv run python -m evals.run_evals` (must meet the gate in SPEC §9)
 - Prisma owns all schema changes (`packages/db`). Never edit the DB by hand. RLS policies live in raw SQL migrations under `packages/db/prisma/migrations/*_rls`; every new per-user table gets a policy in its own migration.
 - Pydantic models in `services/agent/app/schemas.py` are the contract. Mirror them as Zod in `packages/shared` and keep both in sync in the same PR.
 
@@ -33,5 +33,5 @@ pnpm dev                     # web app (UI + API routes) locally
 pnpm --filter db prisma migrate dev
 cd services/agent && uv run uvicorn app.main:app --reload
 uv run python -m etl.download --fy 2025 && uv run python -m etl.publish --fy 2025
-uv run python evals/run_evals.py --report
+uv run python -m evals.run_evals --report
 ```

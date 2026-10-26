@@ -1,0 +1,19 @@
+id: ambiguous_work_auth
+jd: |-
+  Machine Learning Engineer
+  Pinewood AI · Boston, MA (hybrid)
+
+  Pinewood builds forecasting models for hospitals. You'll train and deploy models in Python and PyTorch and own our feature pipelines.
+
+  - 3+ years of applied machine learning
+  - Python, PyTorch, SQL
+  - Experience deploying models to production
+
+  Applicants must have valid US work authorization.
+  Base salary $160,000 - $190,000.
+expect:
+  verdict: apply_with_caution
+  must_flags: [WORK_AUTH_AMBIGUOUS]
+  must_not_flags: [NO_SPONSORSHIP, SPONSORSHIP_OFFERED]
+  employment_type: fte
+  required_skills_include: [python, pytorch]
