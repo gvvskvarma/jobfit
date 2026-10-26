@@ -9,7 +9,7 @@ Read `docs/SPEC.md` first. It is the source of truth for scope, data model, agen
   - `pnpm turbo run lint typecheck test`
   - `cd services/agent && uv run ruff check . && uv run pytest`
   - From M2 on: `uv run python evals/run_evals.py` (must meet the gate in SPEC §9)
-- Prisma owns all schema changes (`packages/db`). Never edit the DB by hand. RLS lives in `packages/db/rls.sql`.
+- Prisma owns all schema changes (`packages/db`). Never edit the DB by hand. RLS policies live in raw SQL migrations under `packages/db/prisma/migrations/*_rls`; every new per-user table gets a policy in its own migration.
 - Pydantic models in `services/agent/app/schemas.py` are the contract. Mirror them as Zod in `packages/shared` and keep both in sync in the same PR.
 
 ## Non-negotiable rules

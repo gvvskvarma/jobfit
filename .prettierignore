@@ -6,3 +6,5 @@ pnpm-lock.yaml
 services/
 docs/
 *.md
+packages/db/src/generated
+packages/db/prisma/migrations
