@@ -26,7 +26,9 @@ def build(years: list[int]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     for fy in years:
         files = lca_files(fy)
         if not files:
-            raise SystemExit(f"FY{fy}: no LCA files in {RAW}; run etl/download.py --fy {fy}")
+            raise SystemExit(
+                f"FY{fy}: no LCA files in {RAW}; run `python -m etl.download --fy {fy}`"
+            )
         t = time.monotonic()
         lca = load_lca(files)
         year = aggregate.year_stats(lca, fy)
@@ -159,6 +161,11 @@ def publish(
                SELECT emp.id, b.fiscal_year, b.soc, b.bucket, b.worksite_state, b.n,
                  b.change_employer, b.p25, b.median, b.p75
                FROM b JOIN "Employer" emp ON emp."normalizedName" = b.employer"""
+        )
+        # Employers left with no stats in any year (e.g. after a normalization fix renamed them).
+        cur.execute(
+            """DELETE FROM "Employer" e WHERE NOT EXISTS
+               (SELECT 1 FROM "EmployerYearStats" s WHERE s."employerId" = e.id)"""
         )
         cur.executemany(
             """INSERT INTO "DatasetVersion" (source, "fiscalYear", "sourceUrl", sha256)

@@ -78,7 +78,7 @@ def main() -> None:
     if missing:
         print(f"\nDownload these from {DOL_PAGE} into {RAW}:")
         print("\n".join(f"  {m}" for m in missing))
-        print("Quarters not yet published can be skipped; publish.py loads whatever is present.")
+        print("Quarters not yet published can be skipped; etl.publish loads whatever is present.")
 
 
 if __name__ == "__main__":

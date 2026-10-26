@@ -45,7 +45,7 @@ def _basic(name: str) -> str:
     s = re.sub(r"[^A-Z0-9]+", " ", s)
     words = s.split()
     while len(words) > 1:
-        if words[-1] in SUFFIXES:
+        if words[-1] in SUFFIXES or words[-1] == "AND":  # "JPMorgan Chase & Co." -> "... AND"
             words.pop()
         elif len(words) > 2 and words[-2:] == ["NORTH", "AMERICA"]:
             words = words[:-2]

@@ -18,6 +18,8 @@ from etl.normalize import normalize_employer, title_bucket
         ("Siemens Holdings USA Corp", "SIEMENS"),
         ("Toyota Motor North America, Inc.", "TOYOTA MOTOR"),
         ("0965688 BC LTD DBA PROCOGIA", "0965688 BC"),
+        ("JPMorgan Chase & Co.", "JPMORGAN CHASE"),
+        ("Johnson & Johnson", "JOHNSON AND JOHNSON"),
         ("Facebook, Inc.", "META PLATFORMS"),
         ("Meta Platforms, Inc.", "META PLATFORMS"),
         ("Group", "GROUP"),
