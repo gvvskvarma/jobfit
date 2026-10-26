@@ -1,6 +1,6 @@
 # JobFit design plan
 
-Status: **draft, awaiting owner sign-off** (SPEC §11). Pages are built only after sign-off.
+Status: **approved by the owner** (2026-10-26).
 
 ## Brief
 
@@ -20,6 +20,15 @@ The visual material comes from the world these users already live in: immigratio
 | Approval | `#3D4FB8` | `#8F9BFF` | The "Apply" stamp, positive flags, the transfers line. |
 | Denial | `#A8324A` | `#F07A90` | The "Skip" stamp and blocking flags. |
 | Highlighter | `#F2DC6B` | `#6B5A12` | Quoted evidence in the posting, and the "Apply with caution" stamp. |
+
+**Chart series** (validated with the dataviz skill's `validate_palette.js`; the UI Guilloche reads too gray as a data color):
+
+| Series | Light | Dark |
+|---|---|---|
+| Certified H-1B filings (bars) | `#00897B` | `#26A69A` |
+| Transfers (line) | `#3D4FB8` | `#6B7BEE` |
+
+Both modes pass every check. The dark pair sits in the tritan floor band, so the two series also differ by mark type (bars vs line) and carry a legend.
 
 Verdicts never rely on color alone: each stamp has its own word and a distinct outline (solid, dashed, double), so the three read in grayscale and for color-blind users. All text pairs meet WCAG AA, checked with the dataviz skill's validator when the tokens are coded.
 

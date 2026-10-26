@@ -85,13 +85,18 @@ def load_lca(paths: list[Path]) -> pl.DataFrame:
     wage = (
         pl.col("WAGE_RATE_OF_PAY_FROM").str.replace_all(r"[$,]", "").cast(pl.Float64, strict=False)
     )
+    pairs = df.select("JOB_TITLE", "SOC_CODE").unique()
+    pairs = pairs.with_columns(
+        bucket=pl.Series([title_bucket(t, s) for t, s in pairs.iter_rows()], dtype=pl.String)
+    )
+    df = df.join(pairs, on=["JOB_TITLE", "SOC_CODE"], how="left", nulls_equal=True)
     return df.select(
         employer=map_unique("EMPLOYER_NAME", normalize_employer),
         employer_raw=pl.col("EMPLOYER_NAME").str.strip_chars(),
         status=pl.col("CASE_STATUS"),
         naics=pl.col("NAICS_CODE"),
         soc=pl.col("SOC_CODE").fill_null(""),
-        bucket=map_unique("JOB_TITLE", title_bucket),
+        bucket=pl.col("bucket"),
         worksite_state=pl.col("WORKSITE_STATE").fill_null(""),
         new_employment=to_int("NEW_EMPLOYMENT"),
         change_employer=to_int("CHANGE_EMPLOYER"),

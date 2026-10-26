@@ -20,6 +20,9 @@ from etl.normalize import normalize_employer, title_bucket
         ("0965688 BC LTD DBA PROCOGIA", "0965688 BC"),
         ("JPMorgan Chase & Co.", "JPMORGAN CHASE"),
         ("Johnson & Johnson", "JOHNSON AND JOHNSON"),
+        ("Fidelity Technology Group, LLC d/b/a Fidelity Investments", "FIDELITY TECHNOLOGY"),
+        ("Fidelity Technology Group, LLC", "FIDELITY TECHNOLOGY"),
+        ("Ascendion, Inc. (Formerly known as Collabera, Inc.)", "ASCENDION"),
         ("Facebook, Inc.", "META PLATFORMS"),
         ("Meta Platforms, Inc.", "META PLATFORMS"),
         ("Group", "GROUP"),
@@ -90,6 +93,32 @@ TITLES = [
 @pytest.mark.parametrize(("title", "bucket"), TITLES)
 def test_title_bucket(title: str, bucket: str) -> None:
     assert title_bucket(title) == bucket
+
+
+@pytest.mark.parametrize(
+    ("title", "soc", "bucket"),
+    [
+        # Microsoft files job families, not titles.
+        ("Software Engineering", "15-1252.00", "software engineer"),
+        ("SOFTWARE ENGINEERING", None, "software engineer"),
+        ("Data Science", "15-2051.00", "data"),
+        # Generic titles fall back to the occupation code.
+        ("Developer", "15-1252.00", "software engineer"),
+        ("Senior Engineer", "15-1252.00", "senior software engineer"),
+        ("Technical Lead", "15-1252.00", "senior software engineer"),
+        ("Systems Engineer", "15-1244.00", "devops/sre"),
+        ("Designer", "15-1255.00", "frontend"),
+        ("Analyst", "15-1253.00", "qa"),
+        # The title wins over the code when it is specific.
+        ("Frontend Engineer", "15-1299.08", "frontend"),
+        # Non-software jobs stay out.
+        ("Assistant Professor", "25-1021.00", "other"),
+        ("Manager", "11-3021.00", "other"),
+        ("Medical Technologist", "29-2011.00", "other"),
+    ],
+)
+def test_title_bucket_soc_fallback(title: str, soc: str | None, bucket: str) -> None:
+    assert title_bucket(title, soc) == bucket
 
 
 def test_title_bucket_empty() -> None:
