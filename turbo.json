@@ -5,6 +5,6 @@
     "build": { "outputs": ["build/**"] },
     "lint": {},
     "typecheck": {},
-    "test": {}
+    "test": { "env": ["DATABASE_URL"] }
   }
 }
