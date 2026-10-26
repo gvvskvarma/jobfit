@@ -125,7 +125,7 @@ JobFit helps engineers on work visas (H-1B, OPT/STEM OPT, L-1, green-card-pendin
 
 ### 5.4 E-Verify (link only) and cap-exempt hints
 - STEM OPT requires the employer to be enrolled in E-Verify. We don't ingest E-Verify data; for STEM OPT users the report shows an `EVERIFY_CHECK` info flag with a link to the official E-Verify employer search.
-- **Cap-exempt hint:** employers whose USCIS NAICS code is `611310` (colleges and universities) or whose normalized name contains `UNIVERSITY`, `COLLEGE` or `RESEARCH INSTITUTE` get `capExemptHint = true`. The UI always words this as "may be cap-exempt — confirm with the employer".
+- **Cap-exempt hint:** employers whose LCA `NAICS_CODE` starts with `611310` (colleges and universities; USCIS files only carry a 2-digit sector) or whose normalized name contains `UNIVERSITY`, `COLLEGE` or `RESEARCH INSTITUTE` get `capExemptHint = true`. The UI always words this as "may be cap-exempt — confirm with the employer".
 
 ### 5.5 Licensing and ethics
 Both are US government public data. Credit the sources in the UI and README. Don't store or show attorney personal fields. Ingest them only if needed for aggregation, then drop them.
@@ -333,7 +333,7 @@ model IngestEvent {           // idempotency for queue consumers
 ## 7. H-1B data pipeline (`services/agent/etl/`)
 
 ### 7.1 Steps
-1. `download.py`: fetch the configured fiscal-year LCA and PERM `.xlsx` files and the USCIS hub export into `data/raw/` (gitignored). Store the source URL and SHA-256 in a `manifest.json`.
+1. `download.py`: DOL blocks automated downloads, so LCA and PERM `.xlsx` files are downloaded once in a browser into `data/raw/` (gitignored); the script fetches the archived USCIS yearly CSVs (FY2023 and earlier; later years are a manual export from the Data Hub), lists anything missing, and records each file's source URL and SHA-256 in `manifest.json`.
 2. `load_lca.py`: stream rows with `polars` (calamine engine). Keep `VISA_CLASS = 'H-1B'`, drop attorney fields, and annualize wages (`Hour×2080, Week×52, Bi-Weekly×26, Month×12, Year×1`).
 3. `normalize.py`: normalize employer names (7.2) and bucket job titles (7.3).
 4. `aggregate.py`: build `EmployerYearStats` and `WageBand` (counts, `changeEmployer`, p25/median/p75). Leave the percentiles null when `n < 5`.
@@ -718,7 +718,7 @@ jobfit/
 │     ├─ tests/
 │     └─ Dockerfile
 ├─ packages/
-│  ├─ db/ (schema.prisma, migrations/, rls.sql)
+│  ├─ db/ (prisma/schema.prisma, prisma/migrations/ incl. *_rls)
 │  └─ shared/ (zod schemas mirrored from Pydantic, visaClock.ts, types)
 ├─ infra/terraform/
 ├─ .github/workflows/ (ci.yml, evals.yml, deploy.yml)

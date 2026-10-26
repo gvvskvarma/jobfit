@@ -1,0 +1,4 @@
+# Manual employer merges (SPEC 7.2). Canonical name: [names that file under it].
+# Names are normalized before matching, so suffixes and punctuation don't matter.
+META PLATFORMS:
+  - FACEBOOK

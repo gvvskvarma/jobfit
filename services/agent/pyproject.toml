@@ -4,6 +4,10 @@ version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi",
+    "fastexcel>=0.21.0",
+    "polars>=2.1.0",
+    "psycopg[binary]>=3.3.6",
+    "pyyaml>=6.0.3",
 ]
 
 [dependency-groups]
@@ -11,6 +15,7 @@ dev = [
     "httpx2",
     "pytest",
     "ruff",
+    "xlsxwriter>=3.3.0",
 ]
 
 [tool.uv]

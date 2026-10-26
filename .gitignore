@@ -25,3 +25,6 @@ __pycache__/
 
 # raw public-data downloads (Section 7)
 data/
+
+# Prisma generated client
+packages/db/src/generated/
