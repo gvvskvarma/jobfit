@@ -43,7 +43,8 @@ def summarize(verdict: Verdict, flags: list[ScreenFlag], employer: EmployerSigna
         y = employer.years[-1]
         parts.append(
             f"{employer.employer} had {y.lca_certified:,} certified H-1B filings in "
-            f"FY{y.fiscal_year}, {y.transfers:,} of them transfers."
+            f"FY{y.fiscal_year}, "
+            + (f"{y.transfers:,} of them transfers." if y.transfers else "none of them transfers.")
         )
     if verdict != "skip" and by_severity["positive"]:
         parts.append(by_severity["positive"][0].explanation)

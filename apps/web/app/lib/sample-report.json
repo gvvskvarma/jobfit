@@ -1,0 +1,57 @@
+{
+  "jobText": "Senior Software Engineer, Flight Software\nOrbitline Aerospace \u00b7 El Segundo, CA (onsite)\n\nYou'll build flight software in C++ for our next-generation launch vehicle and work closely with GNC and avionics teams.\n\nRequirements\n- 5+ years of C++ in embedded or real-time systems\n- Experience with Linux and hardware-in-the-loop testing\n\nThis position requires access to technology subject to the International Traffic in Arms Regulations (ITAR). Applicants must be U.S. persons as defined by 22 CFR 120.62.\n\nCompensation: $165,000 - $210,000 per year.",
+  "report": {
+    "verdict": "skip",
+    "flags": [
+      {
+        "code": "ITAR_EAR",
+        "severity": "block",
+        "evidence": "This position requires access to technology subject to the International Traffic in Arms Regulations (ITAR).",
+        "explanation": "Export-control rules (ITAR or EAR) limit this role to US persons.",
+        "source": "rule"
+      }
+    ],
+    "employer": {
+      "employer": "Orbitline Aerospace",
+      "employer_id": null,
+      "matched": true,
+      "years": [
+        {
+          "fiscal_year": 2024,
+          "lca_certified": 0,
+          "transfers": 0,
+          "perm_certified": null
+        },
+        {
+          "fiscal_year": 2025,
+          "lca_certified": 2,
+          "transfers": 0,
+          "perm_certified": null
+        }
+      ],
+      "wage_band": null,
+      "h1b_dependent": null,
+      "willful_violator": null,
+      "cap_exempt_hint": false,
+      "perm_filings_last_2fy": null,
+      "transfer_likelihood": "low"
+    },
+    "parsed": {
+      "company": "Orbitline Aerospace",
+      "title": "Senior Software Engineer, Flight Software",
+      "seniority": "senior",
+      "location": "El Segundo, CA",
+      "work_model": "onsite",
+      "employment_type": "fte",
+      "pay_min": 165000,
+      "pay_max": 210000,
+      "pay_unit": "year",
+      "required_skills": ["c++", "linux"],
+      "preferred_skills": [],
+      "years_required": 5,
+      "raw_flags": ["Compensation: $165,000 - $210,000 per year."]
+    },
+    "summary": "Skip: Export-control rules (ITAR or EAR) limit this role to US persons. Orbitline Aerospace had 2 certified H-1B filings in FY2025, none of them transfers.",
+    "disclaimer": "Not legal advice. Confirm sponsorship with the employer."
+  }
+}

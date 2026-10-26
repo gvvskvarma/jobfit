@@ -26,6 +26,11 @@ export default function Home() {
         Pasting a job description for a full screening is coming next. You can
         already look up employers and find who sponsors your role.
       </p>
+      <p className="mt-4">
+        <Link to="/sample" viewTransition className="font-semibold">
+          See a sample screening report
+        </Link>
+      </p>
       <ul className="mt-8 space-y-3 text-lg">
         <li>
           <Link to="/discover" className="font-semibold">
