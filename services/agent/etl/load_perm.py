@@ -36,6 +36,10 @@ def load_perm(paths: list[Path]) -> pl.DataFrame:
         .group_by("employer")
         .agg(
             perm_total=pl.len(),
-            perm_certified=pl.col("CASE_STATUS").str.to_uppercase().is_in(CERTIFIED).sum(),
+            perm_certified=pl.col("CASE_STATUS")
+            .str.to_uppercase()
+            .str.replace_all(r"\s", "")  # FY2025 spells it "Certified - Expired"
+            .is_in(CERTIFIED)
+            .sum(),
         )
     )

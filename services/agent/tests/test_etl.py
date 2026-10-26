@@ -5,7 +5,7 @@ import psycopg
 import pytest
 
 import etl.download
-from etl.load_lca import COLUMNS
+from etl.load_lca import COLUMNS, load_lca
 from etl.load_perm import load_perm
 from etl.load_uscis import load_uscis
 from etl.publish import build, dataset_versions, publish
@@ -65,9 +65,16 @@ def raw(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         for i, w in enumerate([80_000, 90_000, 100_000, 110_000, 120_000, 2_000_000])
     ]
     # A1 reappears in Q2 as withdrawn: the later file must win.
-    q2 = [lca_row("A1", "Certified-Withdrawn", "ZZTest Acme Corp", CHANGE_EMPLOYER="2"), *uni]
+    q2 = [
+        lca_row("A1", "Certified-Withdrawn", "ZZTest Acme Corp", CHANGE_EMPLOYER="2"),
+        lca_row("U9", "Certified", "ZZTest State University", **{"H-1B_DEPENDENT": "Y"}),
+        *uni,
+    ]
     pl.DataFrame(q1).write_excel(tmp_path / f"LCA_Disclosure_Data_FY{FY}_Q1.xlsx")
-    pl.DataFrame(q2).write_excel(tmp_path / f"LCA_Disclosure_Data_FY{FY}_Q2.xlsx")
+    # From FY2025 Q2 on, DOL spells the dependency column H_1B_DEPENDENT.
+    pl.DataFrame(q2).rename({"H-1B_DEPENDENT": "H_1B_DEPENDENT"}).write_excel(
+        tmp_path / f"LCA_Disclosure_Data_FY{FY}_Q2.xlsx"
+    )
 
     pl.DataFrame(
         {
@@ -79,7 +86,7 @@ def raw(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     pl.DataFrame(
         {
             "CASE_NUMBER": ["P3"],
-            "CASE_STATUS": ["Certified-Expired"],
+            "CASE_STATUS": ["Certified - Expired"],
             "EMP_BUSINESS_NAME": ["ZZTEST ACME, INC."],
         }
     ).write_excel(tmp_path / f"PERM_Disclosure_Data_New_Form_FY{FY}_Q4.xlsx")
@@ -107,11 +114,16 @@ def test_build_aggregates_one_year(raw: Path) -> None:
     assert (acme["perm_total"], acme["perm_certified"]) == (3, 2)
     assert (acme["initial_approvals"], acme["continuing_approvals"]) == (5, 1205)
 
+    # Q2 uses the renamed H_1B_DEPENDENT column; its value must still be read.
+    assert stats.filter(pl.col("employer") == UNI)["h1b_dependent"].item() is True
+
     uni = employers.filter(pl.col("employer") == UNI).row(0, named=True)
     assert uni["cap_exempt_hint"] is True
     assert employers.filter(pl.col("employer") == ACME)["cap_exempt_hint"].item() is False
 
-    band = bands.filter(pl.col("employer") == UNI).row(0, named=True)
+    band = bands.filter((pl.col("employer") == UNI) & (pl.col("bucket") == "frontend")).row(
+        0, named=True
+    )
     assert band["bucket"] == "frontend"
     assert band["n"] == 6
     assert band["change_employer"] == 6
@@ -121,6 +133,13 @@ def test_build_aggregates_one_year(raw: Path) -> None:
     senior = bands.filter(pl.col("employer") == ACME).row(0, named=True)
     assert senior["bucket"] == "senior software engineer"
     assert senior["p25"] is None  # fewer than 5 wages
+
+
+def test_lca_rejects_missing_columns(tmp_path: Path) -> None:
+    row = {c: "x" for c in COLUMNS if c != "WAGE_UNIT_OF_PAY"}
+    pl.DataFrame([row]).write_excel(tmp_path / "LCA.xlsx")
+    with pytest.raises(ValueError, match="WAGE_UNIT_OF_PAY"):
+        load_lca([tmp_path / "LCA.xlsx"])
 
 
 def test_perm_and_uscis_reject_unknown_headers(tmp_path: Path) -> None:

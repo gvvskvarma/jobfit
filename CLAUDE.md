@@ -32,6 +32,6 @@ Read `docs/SPEC.md` first. It is the source of truth for scope, data model, agen
 pnpm dev                     # web app (UI + API routes) locally
 pnpm --filter db prisma migrate dev
 cd services/agent && uv run uvicorn app.main:app --reload
-uv run python etl/download.py --fy 2025 && uv run python etl/publish.py
+uv run python -m etl.download --fy 2025 && uv run python -m etl.publish --fy 2025
 uv run python evals/run_evals.py --report
 ```

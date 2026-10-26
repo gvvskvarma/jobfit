@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from pathlib import Path
 
+import fastexcel
 import polars as pl
 
 from etl.normalize import normalize_employer, title_bucket
@@ -24,6 +25,8 @@ COLUMNS = [
     "H-1B_DEPENDENT",
     "WILLFUL_VIOLATOR",
 ]
+# Spellings DOL has switched to mid-year (FY2025 Q2 renamed H-1B_DEPENDENT).
+RENAMED = {"H_1B_DEPENDENT": "H-1B_DEPENDENT"}
 ANNUAL_FACTOR = {"HOUR": 2080.0, "WEEK": 52.0, "BI-WEEKLY": 26.0, "MONTH": 12.0, "YEAR": 1.0}
 
 
@@ -51,18 +54,24 @@ def map_unique(col: str, fn: Callable[[str], str]) -> pl.Expr:
     )
 
 
+def _read(path: Path) -> pl.DataFrame:
+    header = [
+        c.name for c in fastexcel.read_excel(path).load_sheet(0, n_rows=0).available_columns()
+    ]
+    source = {RENAMED.get(c, c): c for c in header}
+    if missing := [c for c in COLUMNS if c not in source]:
+        raise ValueError(f"{path.name}: missing LCA columns {missing}")
+    cols = [source[c] for c in COLUMNS]
+    df = pl.read_excel(
+        path, engine="calamine", columns=cols, schema_overrides=dict.fromkeys(cols, pl.String)
+    )
+    return df.rename({source[c]: c for c in COLUMNS if source[c] != c})
+
+
 def load_lca(paths: list[Path]) -> pl.DataFrame:
     """One row per H-1B case. Files are read in name order (Q1..Q4); later files win on
     duplicate case numbers, which makes the result correct whether or not quarters overlap."""
-    frames = [
-        pl.read_excel(
-            p,
-            engine="calamine",
-            columns=COLUMNS,
-            schema_overrides=dict.fromkeys(COLUMNS, pl.String),
-        )
-        for p in sorted(paths)
-    ]
+    frames = [_read(p) for p in sorted(paths)]
     df = (
         pl.concat(frames)
         .filter(pl.col("VISA_CLASS") == "H-1B")
@@ -76,13 +85,18 @@ def load_lca(paths: list[Path]) -> pl.DataFrame:
     wage = (
         pl.col("WAGE_RATE_OF_PAY_FROM").str.replace_all(r"[$,]", "").cast(pl.Float64, strict=False)
     )
+    pairs = df.select("JOB_TITLE", "SOC_CODE").unique()
+    pairs = pairs.with_columns(
+        bucket=pl.Series([title_bucket(t, s) for t, s in pairs.iter_rows()], dtype=pl.String)
+    )
+    df = df.join(pairs, on=["JOB_TITLE", "SOC_CODE"], how="left", nulls_equal=True)
     return df.select(
         employer=map_unique("EMPLOYER_NAME", normalize_employer),
         employer_raw=pl.col("EMPLOYER_NAME").str.strip_chars(),
         status=pl.col("CASE_STATUS"),
         naics=pl.col("NAICS_CODE"),
         soc=pl.col("SOC_CODE").fill_null(""),
-        bucket=map_unique("JOB_TITLE", title_bucket),
+        bucket=pl.col("bucket"),
         worksite_state=pl.col("WORKSITE_STATE").fill_null(""),
         new_employment=to_int("NEW_EMPLOYMENT"),
         change_employer=to_int("CHANGE_EMPLOYER"),

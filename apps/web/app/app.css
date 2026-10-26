@@ -1,1 +1,125 @@
 @import "tailwindcss" source(".");
+@import "@fontsource-variable/libre-franklin";
+@import "@fontsource-variable/source-serif-4/opsz-italic.css";
+
+/* Tokens from docs/DESIGN.md. Dark mode is its own set of steps, not an inversion. */
+:root {
+  --paper: #eef2ef;
+  --sheet: #f8faf8;
+  --ink: #1c2a3a;
+  --ink-muted: #4a5868;
+  --rule: #c9d3ce;
+  --grid: #d9e0dc;
+  --guilloche: #2f7f7a;
+  --approval: #3d4fb8;
+  --denial: #a8324a;
+  --highlighter: #f2dc6b;
+  --chart-certified: #00897b;
+  --chart-transfers: #3d4fb8;
+  --range-opacity: 0.35;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121b26;
+    --sheet: #18232f;
+    --ink: #e4eae6;
+    --ink-muted: #a9b6b0;
+    --rule: #2a3946;
+    --grid: #24323f;
+    --guilloche: #5fb3ac;
+    --approval: #8f9bff;
+    --denial: #f07a90;
+    --highlighter: #6b5a12;
+    --chart-certified: #26a69a;
+    --chart-transfers: #6b7bee;
+    --range-opacity: 0.6;
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  --font-sans: "Libre Franklin Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, serif;
+
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-guilloche: var(--guilloche);
+  --color-approval: var(--approval);
+  --color-denial: var(--denial);
+  --color-highlighter: var(--highlighter);
+  --color-chart-certified: var(--chart-certified);
+  --color-chart-transfers: var(--chart-transfers);
+
+  /* 1.25 ratio from a 16px base (Elements of Typographic Style) */
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --text-4xl: 3.052rem;
+
+  --radius-field: 2px;
+  --radius-sheet: 6px;
+}
+
+@layer base {
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  a {
+    color: inherit;
+    text-decoration-color: var(--guilloche);
+    text-underline-offset: 0.2em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--guilloche);
+    outline-offset: 2px;
+  }
+  /* Employer-quoted text: the employer's words, never ours (DESIGN.md, Type). */
+  q,
+  blockquote {
+    font-family: var(--font-serif);
+    font-style: italic;
+    line-height: 1.6;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility measure {
+  max-width: 70ch;
+}
+
+::view-transition-group(*) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
