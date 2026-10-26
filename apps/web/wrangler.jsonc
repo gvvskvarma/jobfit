@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jobfit-web",
+  "compatibility_date": "2026-10-23",
+  "main": "./workers/app.ts",
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+}

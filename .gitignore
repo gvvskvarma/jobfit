@@ -1,0 +1,27 @@
+.DS_Store
+node_modules/
+*.tsbuildinfo
+.turbo/
+
+# secrets
+.env
+.env.*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+
+# React Router / Cloudflare
+.react-router/
+build/
+.mf
+.wrangler
+worker-configuration.d.ts
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# raw public-data downloads (Section 7)
+data/
