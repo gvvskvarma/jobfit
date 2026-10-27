@@ -4,7 +4,7 @@ A visa-aware job copilot. Paste a job description and JobFit tells you whether t
 
 **Not legal advice.** Confirm sponsorship with the employer.
 
-Status: milestone M1 (data foundation) in progress. See [docs/SPEC.md](docs/SPEC.md) for the full plan and milestones.
+Status: milestone M2 (screening) in progress. See [docs/SPEC.md](docs/SPEC.md) for the full plan and milestones.
 
 ## Layout
 
@@ -19,12 +19,13 @@ Status: milestone M1 (data foundation) in progress. See [docs/SPEC.md](docs/SPEC
 Requires Node 22 (pnpm via `corepack enable`), Python 3.12 and [uv](https://docs.astral.sh/uv/).
 
 ```
-cp .env.example .env.local                 # local database URL (gitignored)
-cp .env.local apps/web/.dev.vars           # the same, for the Workers dev server
+cp .env.example .env.local                 # fill in the keys (gitignored)
+grep -v ANTHROPIC .env.local > apps/web/.dev.vars   # the web app's copy, without the Claude key
 docker compose up -d                       # Postgres + pgvector
 pnpm install
 pnpm --filter @jobfit/db migrate:deploy    # create tables and row-level security
 pnpm dev                                   # web app on http://localhost:5173
+(cd services/agent && uv run --env-file ../../.env.local uvicorn app.main:app --port 8000)  # screening service
 pnpm turbo run lint typecheck test         # TypeScript checks
 cd services/agent && uv sync && uv run pytest
 ```
@@ -46,6 +47,8 @@ uv run python -m etl.publish --fy 2023 2024 2025    # loads into DATABASE_URL
 | `GET /api/employers?q=` | Employers matching a name, busiest first |
 | `GET /api/employers/:id` | H-1B, PERM and USCIS history by year, wage bands, data sources |
 | `GET /api/discover?bucket=&state=&fy=` | Employers ranked by certified H-1B filings for a role and state |
+| `POST /api/jobs` `{jobText}` | Saves a posting for the signed-in user and returns its `id` (30 a day) |
+| `POST /api/jobs/:id/screen` | Screens a saved posting once and returns the report; later calls return the stored report |
 
 ## Data sources
 

@@ -8,5 +8,8 @@ export default [
   route("employers/:id", "routes/employer.tsx"),
   route("api/employers", "routes/api.employers.ts"),
   route("api/employers/:id", "routes/api.employer.ts"),
+  route("jobs/:id", "routes/job.tsx"),
   route("api/discover", "routes/api.discover.ts"),
+  route("api/jobs", "routes/api.jobs.ts"),
+  route("api/jobs/:id/screen", "routes/api.job-screen.ts"),
 ] satisfies RouteConfig;
