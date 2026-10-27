@@ -1,8 +1,13 @@
 import { Show, SignInButton } from "@clerk/react-router";
-import { ScreenInput, ScreeningReport, VISA_STATUSES } from "@jobfit/shared";
+import {
+  DAILY_SCREENINGS,
+  ScreenInput,
+  ScreeningReport,
+  VISA_STATUSES,
+} from "@jobfit/shared";
 import { env } from "cloudflare:workers";
-import { useRef } from "react";
-import { Form, Link, redirect, useNavigation } from "react-router";
+import { useEffect, useRef } from "react";
+import { Form, Link, redirect, useFetcher, useNavigation } from "react-router";
 
 import { Cursor, Wordmark, Working } from "~/components/terminal";
 import {
@@ -18,7 +23,6 @@ import { agent, currentEmail, currentUserId } from "~/lib/auth.server";
 import { withDb } from "~/lib/db.server";
 import {
   AgentError,
-  DAILY_SCREENINGS,
   createJob,
   getJob,
   getVisaStatus,
@@ -27,6 +31,7 @@ import {
   screenJob,
   type VisaStatus,
 } from "~/lib/jobs.server";
+import { PostingError, fetchPosting, postingText } from "~/lib/posting.server";
 import sample from "~/lib/sample-report.json";
 
 import type { Route } from "./+types/home";
@@ -88,10 +93,20 @@ export async function action(args: Route.ActionArgs) {
   const userId = await currentUserId(args);
   if (!userId) return { error: "Sign in to screen a job." };
   const form = await args.request.formData();
-  const input = ScreenInput.safeParse({
-    jobText: form.get("jobText"),
-    jobUrl: form.get("jobUrl") ?? "",
-  });
+  const jobUrl = String(form.get("jobUrl") ?? "").trim();
+  let jobText = String(form.get("jobText") ?? "").trim();
+  if (!jobText && !jobUrl) {
+    return { error: "Add a job link or paste the job description." };
+  }
+  if (!jobText) {
+    try {
+      jobText = postingText(await fetchPosting(jobUrl));
+    } catch (e) {
+      if (e instanceof PostingError) return { error: e.message };
+      throw e;
+    }
+  }
+  const input = ScreenInput.safeParse({ jobText, jobUrl });
   if (!input.success) return { error: input.error.issues[0].message };
   const visa = form.get("visaStatus");
   const visaStatus = VISA_STATUSES.find((v) => v === visa) ?? null;
@@ -128,6 +143,10 @@ export default function Home({ loaderData, actionData }: Route.ComponentProps) {
   const form = useRef<HTMLFormElement>(null);
   const text = useRef<HTMLTextAreaElement>(null);
   const busy = useNavigation().state === "submitting";
+  const pull = useFetcher<{ text?: string; error?: string }>();
+  useEffect(() => {
+    if (pull.data?.text && text.current) text.current.value = pull.data.text;
+  }, [pull.data]);
 
   return (
     <main className="space-y-10">
@@ -136,18 +155,88 @@ export default function Home({ loaderData, actionData }: Route.ComponentProps) {
         <p className="measure text-lg">
           Check a job before you apply.{" "}
           <span className="text-ink-muted">
-            Paste a posting and JobFit reads it for sponsorship, ITAR and
-            contract terms, then pulls the employer's real H-1B and green card
-            record.
+            Give it a job link or the description, and JobFit reads the posting
+            for sponsorship, ITAR and contract terms, then pulls the employer's
+            real H-1B and green card record.
           </span>
         </p>
       </header>
 
-      <Form ref={form} method="post" className="space-y-4">
+      <Form ref={form} method="post" className="space-y-5">
         <Panel
           title={
             <>
-              <span className="text-pink">›</span> paste the job posting
+              <span className="text-pink">›</span> the job
+            </>
+          }
+        >
+          <div className="space-y-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <label htmlFor="jobUrl" className="w-24 shrink-0 text-ink-muted">
+                job link
+              </label>
+              <input
+                id="jobUrl"
+                type="url"
+                name="jobUrl"
+                placeholder="https://careers.company.com/jobs/…"
+                aria-describedby="link-help"
+                className={`${field} min-w-0 flex-1 basis-64`}
+              />
+              <Show when="signed-in">
+                <button
+                  type="button"
+                  disabled={pull.state !== "idle"}
+                  className={quietButton}
+                  onClick={() => {
+                    const url = form.current?.jobUrl.value.trim();
+                    if (url) {
+                      pull.submit(
+                        { url },
+                        { method: "post", action: "/api/posting" },
+                      );
+                    }
+                  }}
+                >
+                  {pull.state !== "idle" ? "Pulling…" : "Pull from link"}
+                </button>
+              </Show>
+            </div>
+            <p
+              id="link-help"
+              className="text-xs text-ink-muted sm:pl-[6.75rem]"
+            >
+              Company career pages, Greenhouse, Lever and Ashby links can be
+              pulled. For LinkedIn or Indeed, paste the description below; the
+              link still gives you an apply button.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <label
+                htmlFor="visaStatus"
+                className="w-24 shrink-0 text-ink-muted"
+              >
+                my status
+              </label>
+              <select
+                id="visaStatus"
+                name="visaStatus"
+                defaultValue={loaderData.visaStatus ?? "H1B"}
+                className={`${field} font-semibold`}
+              >
+                {VISA_STATUSES.map((v) => (
+                  <option key={v} value={v}>
+                    {VISA_LABEL[v]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </Panel>
+
+        <Panel
+          title={
+            <>
+              <span className="text-pink">›</span> job description
               {!busy && <Cursor />}
             </>
           }
@@ -160,11 +249,9 @@ export default function Home({ loaderData, actionData }: Route.ComponentProps) {
             ref={text}
             id="jobText"
             name="jobText"
-            required
-            minLength={50}
             maxLength={30_000}
             rows={12}
-            placeholder="About the job…"
+            placeholder="Paste the description, or pull it from the link above. With only a link, Screen this job pulls it for you."
             aria-describedby={actionData?.error ? "screen-error" : undefined}
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -177,41 +264,13 @@ export default function Home({ loaderData, actionData }: Route.ComponentProps) {
           />
         </Panel>
 
-        <Show when="signed-in">
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
-            <label className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-md">
-              <span className="shrink-0 text-ink-muted">job link</span>
-              <input
-                type="url"
-                name="jobUrl"
-                placeholder="https://… (optional, for the apply button)"
-                className={`${field} min-w-0 flex-1`}
-              />
-            </label>
-            <label className="flex items-center gap-2">
-              <span className="text-ink-muted">my status</span>
-              <select
-                name="visaStatus"
-                defaultValue={loaderData.visaStatus ?? "H1B"}
-                className={`${field} font-semibold`}
-              >
-                {VISA_STATUSES.map((v) => (
-                  <option key={v} value={v}>
-                    {VISA_LABEL[v]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </Show>
-
-        {actionData?.error && (
+        {(pull.data?.error ?? actionData?.error) && (
           <p
             id="screen-error"
             role="alert"
             className="border-l-2 border-denial pl-3 text-denial"
           >
-            ✗ {actionData.error}
+            ✗ {pull.data?.error ?? actionData?.error}
           </p>
         )}
 

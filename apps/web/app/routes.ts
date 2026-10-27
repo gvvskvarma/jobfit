@@ -11,5 +11,6 @@ export default [
   route("jobs/:id", "routes/job.tsx"),
   route("api/discover", "routes/api.discover.ts"),
   route("api/jobs", "routes/api.jobs.ts"),
+  route("api/posting", "routes/api.posting.ts"),
   route("api/jobs/:id/screen", "routes/api.job-screen.ts"),
 ] satisfies RouteConfig;

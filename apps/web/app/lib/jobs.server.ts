@@ -1,10 +1,14 @@
-import { ScreeningReport, type VISA_STATUSES } from "@jobfit/shared";
+import {
+  DAILY_SCREENINGS,
+  ScreeningReport,
+  type VISA_STATUSES,
+} from "@jobfit/shared";
 
 import type { Db } from "./db.server";
 
 export type VisaStatus = (typeof VISA_STATUSES)[number];
 
-export const DAILY_SCREENINGS = 30;
+export { DAILY_SCREENINGS };
 
 export interface Job {
   id: string;

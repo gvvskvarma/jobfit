@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 // Must match the Pydantic defaults in services/agent/app/schemas.py (SPEC §8.1).
+/** Postings a user can screen per rolling day; also caps the Claude bill. */
+export const DAILY_SCREENINGS = 30;
+
 export const SCREENING_DISCLAIMER =
   "Not legal advice. Confirm sponsorship with the employer.";
 export const VISA_CLOCK_DISCLAIMER =
