@@ -1,0 +1,20 @@
+{
+  "company": "Ironhawk Systems",
+  "title": "Embedded Software Engineer",
+  "seniority": "unknown",
+  "location": "Huntsville, AL",
+  "work_model": "unknown",
+  "employment_type": "fte",
+  "pay_min": null,
+  "pay_max": null,
+  "pay_unit": null,
+  "required_skills": [
+    "c",
+    "rtos"
+  ],
+  "preferred_skills": [],
+  "years_required": 4,
+  "raw_flags": [
+    "Due to ITAR requirements, this position is open only to U.S. persons."
+  ]
+}

@@ -21,6 +21,7 @@ import yaml
 
 from app import llm, screen
 from app.schemas import EmployerSignal, ScreeningReport, UserContext
+from etl.publish import load_env
 
 CASES = Path(__file__).with_name("cases")
 REPORT = Path(__file__).with_name("report.md")
@@ -73,6 +74,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", action="store_true", help="write evals/report.md")
     args = parser.parse_args()
+    load_env()
 
     cases = [yaml.safe_load(p.read_text()) for p in sorted(CASES.glob("*.yaml"))]
     rows, latencies = [], []

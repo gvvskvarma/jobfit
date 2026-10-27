@@ -1,0 +1,21 @@
+{
+  "company": "Northwind Analytics",
+  "title": "Full Stack Engineer",
+  "seniority": "unknown",
+  "location": "Dallas, TX",
+  "work_model": "unknown",
+  "employment_type": "fte",
+  "pay_min": 140000,
+  "pay_max": 165000,
+  "pay_unit": "year",
+  "required_skills": [
+    "react",
+    "node.js"
+  ],
+  "preferred_skills": [],
+  "years_required": 5,
+  "raw_flags": [
+    "Immigration: We are unable to sponsor new visas, but H-1B transfers are welcome.",
+    "Pay: $140,000 - $165,000 plus bonus."
+  ]
+}

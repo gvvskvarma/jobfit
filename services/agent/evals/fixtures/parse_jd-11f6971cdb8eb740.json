@@ -1,0 +1,22 @@
+{
+  "company": "Pinewood AI",
+  "title": "Machine Learning Engineer",
+  "seniority": "unknown",
+  "location": "Boston, MA",
+  "work_model": "hybrid",
+  "employment_type": "fte",
+  "pay_min": 160000,
+  "pay_max": 190000,
+  "pay_unit": "year",
+  "required_skills": [
+    "python",
+    "pytorch",
+    "sql"
+  ],
+  "preferred_skills": [],
+  "years_required": 3,
+  "raw_flags": [
+    "Applicants must have valid US work authorization.",
+    "Base salary $160,000 - $190,000."
+  ]
+}

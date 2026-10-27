@@ -1,0 +1,22 @@
+{
+  "company": "TestRight Solutions",
+  "title": "Junior QA Analyst",
+  "seniority": "junior",
+  "location": null,
+  "work_model": "remote",
+  "employment_type": "fte",
+  "pay_min": 24,
+  "pay_max": 27,
+  "pay_unit": "hour",
+  "required_skills": [
+    "jira"
+  ],
+  "preferred_skills": [
+    "selenium"
+  ],
+  "years_required": 1,
+  "raw_flags": [
+    "This is a full-time role.",
+    "Pay: $24 - $27 per hour."
+  ]
+}

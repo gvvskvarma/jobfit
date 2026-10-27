@@ -1,0 +1,24 @@
+{
+  "company": null,
+  "title": "Data Engineer",
+  "seniority": "unknown",
+  "location": "Austin, TX",
+  "work_model": "hybrid",
+  "employment_type": "contract_w2",
+  "pay_min": 70,
+  "pay_max": 70,
+  "pay_unit": "hour",
+  "required_skills": [
+    "spark",
+    "databricks",
+    "python"
+  ],
+  "preferred_skills": [],
+  "years_required": null,
+  "raw_flags": [
+    "Duration: 12 months",
+    "Employment type: W2 only",
+    "USC/GC only. No third parties.",
+    "Pay rate: $70/hr on W2."
+  ]
+}

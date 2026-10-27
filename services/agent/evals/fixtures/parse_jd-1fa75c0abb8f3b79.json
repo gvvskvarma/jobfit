@@ -1,0 +1,27 @@
+{
+  "company": "Apex Talent Partners",
+  "title": "Java Developer - 6 Month Contract",
+  "seniority": "unknown",
+  "location": "Charlotte, NC",
+  "work_model": "onsite",
+  "employment_type": "contract_c2c",
+  "pay_min": 65,
+  "pay_max": 65,
+  "pay_unit": "hour",
+  "required_skills": [
+    "java",
+    "spring boot",
+    "microservices",
+    "kafka",
+    "oracle"
+  ],
+  "preferred_skills": [],
+  "years_required": 8,
+  "raw_flags": [
+    "Client: Fortune 500 bank (via Apex Talent Partners)",
+    "Location: Charlotte, NC (onsite)",
+    "This is a 6-month contract with possible extension.",
+    "C2C only, rate $65/hr.",
+    "Please send resumes with visa status and current location."
+  ]
+}

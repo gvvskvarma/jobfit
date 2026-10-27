@@ -1,0 +1,10 @@
+{
+  "flags": [
+    {
+      "code": "SPONSORSHIP_OFFERED",
+      "severity": "positive",
+      "evidence": "The university sponsors H-1B visas for eligible positions.",
+      "explanation": "The university states it sponsors H-1B visas for eligible positions, though you should confirm this position is one of them."
+    }
+  ]
+}

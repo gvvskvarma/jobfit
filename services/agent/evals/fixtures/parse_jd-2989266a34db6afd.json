@@ -1,0 +1,24 @@
+{
+  "company": "Chainvault Labs",
+  "title": "Senior Blockchain Engineer",
+  "seniority": "senior",
+  "location": "San Francisco, CA",
+  "work_model": "remote",
+  "employment_type": "fte",
+  "pay_min": 170000,
+  "pay_max": 210000,
+  "pay_unit": "year",
+  "required_skills": [
+    "solidity",
+    "typescript",
+    "smart contracts",
+    "security reviews"
+  ],
+  "preferred_skills": [],
+  "years_required": 5,
+  "raw_flags": [
+    "Visa sponsorship is available for this role.",
+    "Salary: $170,000 - $210,000 + tokens.",
+    "San Francisco, CA (remote friendly)"
+  ]
+}
