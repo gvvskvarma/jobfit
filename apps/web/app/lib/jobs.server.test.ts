@@ -58,9 +58,11 @@ describe.skipIf(!url)("jobs under row-level security", () => {
   });
 
   test("a user only sees their own jobs", async () => {
-    const id = await createJob(db, ALICE, JD);
+    const id = await createJob(db, ALICE, JD, "https://jobs.example.com/1");
     expect(id).not.toBeNull();
-    expect((await getJob(db, ALICE, id!))?.rawText).toBe(JD);
+    const job = await getJob(db, ALICE, id!);
+    expect(job?.rawText).toBe(JD);
+    expect(job?.source).toBe("https://jobs.example.com/1");
     expect(await getJob(db, BOB, id!)).toBeNull();
     expect(await recentJobs(db, BOB)).toEqual([]);
   });

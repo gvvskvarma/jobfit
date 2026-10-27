@@ -6,6 +6,7 @@ import { withDb } from "~/lib/db.server";
 import { discoverSponsors, latestFiscalYear } from "~/lib/employers.server";
 import { bucketLabel, formatCount, formatUsd, plural } from "~/lib/format";
 import { US_STATES } from "~/lib/states";
+import { button, field } from "~/components/ui";
 
 import type { Route } from "./+types/discover";
 
@@ -47,8 +48,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   });
 }
 
-const select =
-  "mx-1 rounded-[var(--radius-field)] border border-rule bg-sheet px-2 py-1 font-semibold text-ink";
+const select = `mx-1 ${field} font-semibold`;
 
 export default function Discover({ loaderData }: Route.ComponentProps) {
   const { query, years, employers, invalid } = loaderData;
@@ -58,7 +58,10 @@ export default function Discover({ loaderData }: Route.ComponentProps) {
 
   return (
     <main>
-      <h1 className="text-3xl font-bold tracking-tight">
+      <h1 className="text-2xl font-bold sm:text-3xl">
+        <span aria-hidden className="mr-3 text-pink">
+          ●
+        </span>
         Find employers that sponsor H-1Bs
       </h1>
       <Form method="get" className="measure mt-6 text-lg leading-loose">
@@ -102,10 +105,7 @@ export default function Discover({ loaderData }: Route.ComponentProps) {
             </option>
           ))}
         </select>
-        <button
-          type="submit"
-          className="ml-2 rounded-[var(--radius-field)] bg-ink px-4 py-1 text-base font-semibold text-paper hover:bg-guilloche"
-        >
+        <button type="submit" className={`ml-2 ${button}`}>
           Show employers
         </button>
       </Form>

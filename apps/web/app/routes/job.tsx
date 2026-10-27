@@ -3,11 +3,19 @@ import { env } from "cloudflare:workers";
 import { Form, data, redirect, useNavigation } from "react-router";
 
 import { Report } from "~/components/Report";
+import { Working } from "~/components/terminal";
+import { Panel, button } from "~/components/ui";
 import { agent, currentUserId } from "~/lib/auth.server";
 import { withDb } from "~/lib/db.server";
 import { AgentError, getJob, screenJob } from "~/lib/jobs.server";
 
 import type { Route } from "./+types/job";
+
+const day = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
 
 export function meta({ loaderData }: Route.MetaArgs) {
   const title = loaderData?.report?.parsed?.title ?? "Job posting";
@@ -24,6 +32,8 @@ export async function loader(args: Route.LoaderArgs) {
   if (!job) throw data(null, { status: 404 });
   return {
     jobText: job.rawText,
+    jobUrl: job.source?.startsWith("http") ? job.source : null,
+    screenedOn: day.format(job.createdAt),
     report: job.screening ? ScreeningReport.parse(job.screening) : null,
   };
 }
@@ -49,30 +59,39 @@ export default function Job({ loaderData, actionData }: Route.ComponentProps) {
   if (loaderData.report) {
     return (
       <main>
-        <Report report={loaderData.report} jobText={loaderData.jobText} />
+        <Report
+          report={loaderData.report}
+          jobText={loaderData.jobText}
+          jobUrl={loaderData.jobUrl}
+          screenedOn={loaderData.screenedOn}
+        />
       </main>
     );
   }
   return (
-    <main className="measure">
-      <h1 className="text-2xl font-bold">This job hasn't been screened yet</h1>
+    <main className="space-y-6">
+      <h1 className="text-2xl font-bold">
+        <span aria-hidden className="mr-3 text-caution">
+          !
+        </span>
+        This job hasn't been screened yet
+      </h1>
       {actionData?.error && (
-        <p role="alert" className="mt-4 border-l-4 border-denial pl-3">
-          {actionData.error}
+        <p role="alert" className="border-l-2 border-denial pl-3 text-denial">
+          ✗ {actionData.error}
         </p>
       )}
-      <Form method="post" className="mt-6">
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded-[var(--radius-field)] bg-ink px-5 py-2 text-lg font-semibold text-paper hover:bg-guilloche disabled:bg-ink-muted"
-        >
-          {busy ? "Reading the posting…" : "Screen this job"}
+      <Form method="post" className="space-y-3">
+        <button type="submit" disabled={busy} className={button}>
+          <span aria-hidden>◼</span> Screen this job
         </button>
+        {busy && <Working steps={["Screening the posting"]} />}
       </Form>
-      <blockquote className="mt-8 whitespace-pre-wrap rounded-[var(--radius-sheet)] bg-sheet p-4 sm:p-6">
-        {loaderData.jobText}
-      </blockquote>
+      <Panel title="posting">
+        <blockquote className="whitespace-pre-wrap text-sm not-italic">
+          {loaderData.jobText}
+        </blockquote>
+      </Panel>
     </main>
   );
 }

@@ -1,133 +1,95 @@
 # JobFit design plan
 
-Status: **approved by the owner** (2026-10-26).
+Status: **approved by the owner** (2026-10-27). This replaces the 2026-10-26 "immigration paperwork" plan; the owner asked for a terminal-session look that is still colorful, animated and premium ("like baggy jeans back in fashion").
 
 ## Brief
 
 - **Subject:** deciding whether a job posting can work with a US work visa, and applying honestly.
-- **Audience:** software engineers on H-1B, OPT or STEM OPT. Data-literate, short on time (a layoff starts a 60-day clock), and wary of tools that overpromise.
+- **Audience:** software engineers on H-1B, OPT or STEM OPT. They live in terminals, are short on time (a layoff starts a 60-day clock), and are wary of tools that overpromise.
 - **Primary job:** give a verdict they can trust in seconds, and show the exact sentence and the public record behind it.
 
-The visual material comes from the world these users already live in: immigration paperwork. That means approval notices, rubber stamps on forms, security-printed paper and a highlighter run over the one sentence that matters. We borrow the materials, not the bureaucracy. The pages should feel like a sharp friend's annotated copy of the paperwork, not a government portal.
+The material is the modern, color-rich terminal: the window, the prompt, box-drawn panes, inverse-video status blocks and keyboard hints. Retro structure, current polish: a gradient spectrum, soft depth and motion that answers what the user does.
 
 ## Color
 
 | Name | Light | Dark | Role |
 |---|---|---|---|
-| Paper | `#EEF2EF` | `#121B26` | Page background. Cool security-paper gray-green, not cream. |
-| Ink | `#1C2A3A` | `#E4EAE6` | Text and primary chart marks. Blue-black ballpoint ink, never pure black. |
-| Guilloche | `#2F7F7A` | `#5FB3AC` | Structure: rules, focus rings, chart lines, links. |
-| Approval | `#3D4FB8` | `#8F9BFF` | The "Apply" stamp, positive flags, the transfers line. |
-| Denial | `#A8324A` | `#F07A90` | The "Skip" stamp and blocking flags. |
-| Highlighter | `#F2DC6B` | `#6B5A12` | Quoted evidence in the posting, and the "Apply with caution" stamp. |
+| Desk | `#F3F1FB` + aurora | `#0A0912` + aurora | Behind the window. Three soft radial glows (violet, pink, cyan). |
+| Paper | `#FFFFFF` | `#13121D` | The terminal window. |
+| Ink | `#1B1A2E` | `#ECEAF6` | Text. |
+| Muted | `#5F5D75` | `#9C99B3` | Dim status lines, hints, labels. |
+| Rule | `#E3E0F0` | `#2D2B40` | Pane borders, table rules. |
+| Select | `#F1EFFC` | `#252338` | The hovered-row bar. Only ink or muted text sits on it. |
+| Violet (accent) | `#6A45F5` | `#A18BFF` | Links, focus, cursor. |
+| Pink | `#C42B72` | `#FF6FAE` | The prompt glyph `›` and title bullets. |
+| Cyan | `#087389` | `#56D4EA` | Third stop of the spectrum. |
+| Approval / Caution / Denial | `#0F7A57` / `#8F5B00` / `#C92339` | `#47D6A2` / `#F5B83D` / `#FF6378` | Verdicts and flag glyphs. |
+| Highlighter | `#FFE58F` | `#5A4700` | Quoted evidence in the posting. |
 
-**Chart series** (validated with the dataviz skill's `validate_palette.js`; the UI Guilloche reads too gray as a data color):
+**Spectrum:** violet → pink → cyan, blended in OKLCH. It's used in three places only: the wordmark, the active tab and the primary button.
 
-| Series | Light | Dark |
-|---|---|---|
-| Certified H-1B filings (bars) | `#00897B` | `#26A69A` |
-| Transfers (line) | `#3D4FB8` | `#6B7BEE` |
+**Chart series** are unchanged (`#00897B` / `#3D4FB8` light, `#26A69A` / `#7B7BFF` dark) and re-validated against the new window colors with the dataviz skill's `validate_palette.js`: all checks pass in both modes. Every text color meets WCAG AA (4.5:1) on Paper.
 
-Both modes pass every check. The dark pair sits in the tritan floor band, so the two series also differ by mark type (bars vs line) and carry a legend.
-
-Verdicts never rely on color alone: each stamp has its own word and a distinct outline (solid, dashed, double), so the three read in grayscale and for color-blind users. All text pairs meet WCAG AA, checked with the dataviz skill's validator when the tokens are coded.
+Verdicts never rely on color alone: each has its own word and its flags have their own glyph (`✗ ! · ✓`) and label.
 
 ## Type
 
-- **Libre Franklin** carries the interface: headings, labels, numbers and body. Franklin Gothic is the face of American forms and signage, so it fits the subject without looking like a government site. It uses tabular figures in every table and chart.
-- **Source Serif 4, italic** is used only for text quoted from a job posting or email. This encodes meaning: serif italic is the employer's words, and sans is JobFit's analysis. It's never used for headings.
-- The type scale follows *The Elements of Typographic Style*: a 16px base, a 1.25 ratio (16 / 20 / 25 / 31 / 39 / 49), body line-height 1.5 (1.6 for serif quotes) and body measure capped at 70 characters.
+- **IBM Plex Mono** for everything, at a 15px base with a 1.2 ratio. Monospace reads large, so the scale is gentler than a sans would need.
+- **Plex Mono italic** marks text quoted from a job posting or email: italic is the employer's words, upright is JobFit's analysis.
+- Measure is capped at 80 characters.
 
 ## Layout
 
-**Screening report (`/jobs/:id`)**: the core page. The posting and the verdict sit side by side, and every flag is tied to the sentence it came from.
+Every page lives in one terminal window: traffic-light dots, a title like `jobfit — ~/screen`, then a tab row (`← ◼ Screen ◻ Sponsors ◻ Employers →`) where the active tab is a spectrum block. The footer is the disclaimer and the data sources.
+
+**Home:** the pixel wordmark, one line saying what JobFit does, then the prompt pane (`› paste the job posting▌`), job link and status fields, the buttons and keyboard hints (`⌘↵ to screen · Esc to clear`). Recent jobs are rows that take the select bar and a `›` on hover, with an inverse verdict tag.
+
+**Report (`/jobs/:id`):**
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│ JobFit      Screen   Discover   Tracker   Bank        [avatar]│
-├──────────────────────────────────┬────────────────────────────┤
-│ Senior Frontend Engineer         │   ╔═══════════════════╗    │
-│ Acme Robotics · Austin, TX       │   ║   APPLY WITH      ║    │ ← stamp lands
-│                                  │   ║    CAUTION        ║    │   (the one bold
-│ The posting                      │   ╚═══════════════════╝    │    moment)
-│ ...we build tools for            │                            │
-│ ▓▓"Must be authorized to work▓▓  │  Why                       │
-│ ▓▓in the US without              │  ▲ Work authorization is   │
-│ ▓▓sponsorship now or in the▓▓    │    ambiguous  ──────────── │ ← hover links
-│ ▓▓future."▓▓  (serif italic)     │  ● Transfers: 88 in FY2025 │   flag ⇄ sentence
-│ ...                              │  ● Pays near the median    │
-│                                  │                            │
-├──────────────────────────────────┴────────────────────────────┤
-│ Acme Robotics: H-1B record                                    │
-│  filings by year ▇▇ ▇▇▇ ▇▇▇▇   transfers ───╱──   PERM 312    │
-│  pay for frontend in TX: p25 ── median ── p75  ◆ this posting │
-├───────────────────────────────────────────────────────────────┤
-│ Not legal advice. Confirm sponsorship with the employer.      │
-└───────────────────────────────────────────────────────────────┘
+● Senior Frontend Engineer
+✻ Rilian Technologies · Remote · screened Oct 27, 2026
+[◼ Open the posting to apply ↗]
+
+┌ posting, flagged lines highlighted ─┐  ┌ verdict ────────────┐
+│ ...                                 │  │ ▐SKIP▌ ▌             │
+│ ▓▓This position requires ITAR▓▓     │  │ summary              │
+│ ...                                 │  │ ✗ Rules you out      │
+└─────────────────────────────────────┘  │   explanation        │
+                                         │   │ "quote"          │
+┌ Rilian Technologies's h-1b record ──┐  │   ⎿ found by a rule  │
+└─────────────────────────────────────┘  └──────────────────────┘
 ```
 
-Text is left-aligned throughout. On mobile the verdict stacks first, then the flags, then the posting, with each flag linking down to its sentence.
+On mobile the verdict pane comes first. Hovering or focusing a flag rings its sentence in the posting.
 
-**Home (`/`)**: the opening is the tool itself: a large sheet you paste the posting onto. There's no marketing headline or stat strip. "Try a sample posting" fills in an ITAR job and runs the real report, so first-time visitors see the stamp land on "Skip".
+**Surfaces:** box-drawn panes with the title in the top border. Radius follows hierarchy: 2–3px for fields and tags, 4px for panes, 12px for the window. The only shadows are the window floating over the desk, the primary button and the verdict glow.
 
-```
-┌───────────────────────────────────────────────────────────────┐
-│ Check a job before you apply                                  │
-│ ┌───────────────────────────────────────────────────────────┐ │
-│ │ Paste the job description here                           │ │
-│ │                                                           │ │
-│ └───────────────────────────────────────────────────────────┘ │
-│ [ Screen this job ]   Try a sample posting                    │
-│                                                               │
-│ What gets checked: sponsorship wording · ITAR and clearance … │
-└───────────────────────────────────────────────────────────────┘
-```
+## Motion
 
-**Discover (`/discover`)**: the filter reads as a sentence, then a dense table follows.
+1. **Wordmark power-on:** the pixels light up left to right once on load.
+2. **The report prints (the signature):** the verdict types itself out, then the summary and each flag appear line by line, ending on a blinking cursor. Plays once per report.
+3. **Working spinner:** while a job is screened, a braille spinner runs and the status line names the screening steps.
+4. Rows take the select bar on hover; the primary button's gradient slides on hover.
+5. Charts draw once when they scroll into view. Navigating from a report to an employer page morphs the employer name with a View Transition.
 
-```
- Employers that filed H-1Bs for [frontend ▾] engineers in [Texas ▾] in [FY2025 ▾]
-
- Employer              Certified   Transfers   PERM   Median pay
- ───────────────────────────────────────────────────────────────
- Acme Robotics              214          88     312     $142,000
- ...
-```
-
-**Tracker**: a kanban board with columns by status and a "Due today" list above it.
-
-**Surfaces:** pages are sheets of paper separated by tint and thin Guilloche rules, not identical rounded cards with soft shadows. Corner radius follows hierarchy: 2px for inputs and tags, 6px for sheets and none for tables. The only shadow in the product is the stamp's ink bleed.
-
-## Motion (Motion for React + View Transitions)
-
-1. **Verdict stamp (the signature):** the stamp drops from 115% scale and −4° to rest with a short spring (~300ms). A faint security-print pattern appears behind it, and only then do the flags settle in one by one. It plays once per report.
-2. Agent steps on the tailor page appear as they stream in, and answered gap questions collapse into a one-line summary.
-3. Kanban cards glide between columns using layout animation.
-4. Charts draw once when they first scroll into view.
-5. The visa-clock number counts to its new value when the gaps change.
-6. Navigating from a report to an employer page morphs the employer name with a View Transition.
-
-With `prefers-reduced-motion`, every one of these becomes an instant change.
+With `prefers-reduced-motion`, all of it becomes an instant change.
 
 ## Writing
 
-The writing uses plain verbs, sentence case and the user's vocabulary. For example, it says "sponsorship" rather than "SPONSORSHIP_OFFERED". Buttons say what they do ("Screen this job", "Save to tracker"), and the result uses the same word ("Saved to tracker"). Errors say what happened and what to do next, without apologizing. Empty states invite an action ("No applications yet. Screen a job to start tracking it.").
+Plain verbs, sentence case, the user's vocabulary: "sponsorship", not "SPONSORSHIP_OFFERED". Buttons say what they do ("Screen this job", "Open the posting to apply"). Errors say what happened and what to do next, without apologizing. Pane titles are lowercase like terminal labels; everything else is sentence case. The only all-caps text is the verdict block.
 
 ## Review against generic defaults (frontend-design skill)
 
+The owner's brief explicitly asks for a terminal look, so monospace labels and `·` meta strings are deliberate here. The skill says the brief wins. The rest was checked:
+
 | Default to avoid | Check |
 |---|---|
-| Cream background, serif display, terracotta accent | Paper is a cool gray-green, the serif is only for quotes and the reds are carmine. |
-| Near-black with one acid accent | The dark mode is ink blue with the same palette. |
-| Broadsheet columns, hairlines, zero radius | There are no newspaper columns. Radius varies by hierarchy and rules are used only where they separate content. |
-| SaaS card kit with identical shadows | Sheets are separated by tint, and there are no drop shadows except the stamp. |
-| All-caps eyebrows, `·` meta strings, mono labels, `→` buttons | The only all-caps is the stamp, which is literally a stamp. Arrows and mono labels aren't used. |
-
-**Changes made after the review:**
-- **Passport-navy primary:** I first considered it, but it's the default "trust blue" of every fintech site. I swapped it for ink plus Guilloche teal.
-- **Passport-style data strip:** I dropped a machine-readable "passport line" on employer pages. It was a second bold element competing with the stamp. One memorable thing is enough.
-- **Middle-dot meta lines:** the posting header ("Acme Robotics · Austin, TX") still uses one. I'll keep it only where it mirrors how job boards display that line, and nowhere else.
+| Near-black with one acid accent | Dark mode is a violet-black with a three-color spectrum and semantic verdict colors. |
+| SaaS card kit, identical soft shadows | Panes are bordered, not shadowed; shadow marks only the window, the primary action and the verdict. |
+| Gradient washes as decoration | The spectrum appears in exactly three places, each the most important element of its area. |
+| `→` appended to buttons | Arrows appear only in the tab row (as in real TUIs) and `↗` on the one external link. |
 
 ## Components
 
-shadcn/ui (Radix primitives) supplies behavior only: dialog, popover, select, tabs and toast. All of its default styles are replaced by the tokens above.
+Behavior comes from native elements (`<select>`, `<dialog>` later) and Clerk's components. Shared styles live in `apps/web/app/components/ui.tsx` (`button`, `quietButton`, `field`, `Panel`, `Meta`, `Hints`, `VerdictTag`) and `terminal.tsx` (`Wordmark`, `Working`, `Cursor`).
