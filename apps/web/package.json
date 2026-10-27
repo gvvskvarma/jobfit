@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@clerk/react-router": "3.6.38",
-    "@fontsource-variable/libre-franklin": "^5.3.0",
-    "@fontsource-variable/source-serif-4": "^5.3.1",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
     "@jobfit/shared": "workspace:*",
     "isbot": "^5.1.36",
     "motion": "^14.6.0",

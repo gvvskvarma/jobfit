@@ -41,12 +41,9 @@ importers:
       '@clerk/react-router':
         specifier: 3.6.38
         version: 3.6.38(react-dom@19.3.1(react@19.3.1))(react-router@8.5.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
-      '@fontsource-variable/libre-franklin':
+      '@fontsource/ibm-plex-mono':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource-variable/source-serif-4':
-        specifier: ^5.3.1
-        version: 5.3.1
       '@jobfit/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -505,11 +502,8 @@ packages:
     resolution: {integrity: sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@fontsource-variable/libre-franklin@5.3.0':
-    resolution: {integrity: sha512-PEQemCKVRtkLZJNpfvR4wG7x87c8iG05XJuEaX59ogMcAQpdtCZz/NXZUrXLJyvyx3/HD70W4LUppWLBdEdU2g==}
-
-  '@fontsource-variable/source-serif-4@5.3.1':
-    resolution: {integrity: sha512-4Rtay22SC4lMvw11r/+9kxANB6P3M0X8s1NudBC2v0J1KU2y3DcMoNcT3lBoZ/CqLirzf+StlO6UlJilyrvaUg==}
+  '@fontsource/ibm-plex-mono@5.3.0':
+    resolution: {integrity: sha512-eTgnZjZEGk1QtD3ZstF+Vclo2HLAni8YMy34/DxllwZvyz1lR/1RF/xTiAquOBO7MvqBx8D2Ig2WCPMVfdZu7Q==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2978,9 +2972,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@fontsource-variable/libre-franklin@5.3.0': {}
-
-  '@fontsource-variable/source-serif-4@5.3.1': {}
+  '@fontsource/ibm-plex-mono@5.3.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

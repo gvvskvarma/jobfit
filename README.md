@@ -49,6 +49,7 @@ uv run python -m etl.publish --fy 2023 2024 2025    # loads into DATABASE_URL
 | `GET /api/discover?bucket=&state=&fy=` | Employers ranked by certified H-1B filings for a role and state |
 | `POST /api/jobs` `{jobText}` | Saves a posting for the signed-in user and returns its `id` (30 a day) |
 | `POST /api/jobs/:id/screen` | Screens a saved posting once and returns the report; later calls return the stored report |
+| `POST /api/posting` `url=` | Pulls a posting's text from a company careers, Greenhouse, Lever or Ashby link (job boards are refused) |
 
 ## Data sources
 

@@ -33,7 +33,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
-      - run: pnpm turbo run lint typecheck test
+      - run: pnpm turbo run lint typecheck test build
 
   agent:
     runs-on: ubuntu-latest

@@ -15,14 +15,15 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 
 const NAV = [
-  { to: "/", label: "Screen a job" },
-  { to: "/discover", label: "Find sponsors" },
+  { to: "/", label: "Screen" },
+  { to: "/discover", label: "Sponsors" },
   { to: "/employers", label: "Employers" },
 ];
 
@@ -44,7 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="flex min-h-dvh flex-col">
+      <body>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -53,7 +54,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Header, page and footer; the error boundary renders it without Clerk, so `account` is optional. */
+const TITLES: [string, string][] = [
+  ["/jobs/", "~/jobs"],
+  ["/employers", "~/employers"],
+  ["/discover", "~/sponsors"],
+  ["/sample", "~/sample"],
+];
+
+/** The terminal window every page lives in; the error boundary renders it without Clerk. */
 function Shell({
   account,
   children,
@@ -61,52 +69,69 @@ function Shell({
   account?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const { pathname } = useLocation();
+  const cwd = TITLES.find(([p]) => pathname.startsWith(p))?.[1] ?? "~/screen";
   return (
-    <>
-      <header className="border-b border-rule">
+    <div className="flex min-h-dvh flex-col sm:p-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col overflow-hidden border-rule bg-paper sm:rounded-[var(--radius-window)] sm:border sm:shadow-[0_40px_100px_-40px_color-mix(in_srgb,var(--accent)_55%,transparent)]">
+        <header className="flex items-center gap-4 border-b border-rule px-4 py-2.5">
+          <span aria-hidden className="flex gap-2">
+            <i className="size-3 rounded-full bg-[#ff5f57]" />
+            <i className="size-3 rounded-full bg-[#febc2e]" />
+            <i className="size-3 rounded-full bg-[#28c840]" />
+          </span>
+          <p className="min-w-0 flex-1 truncate text-center text-sm text-ink-muted">
+            <NavLink to="/" className="font-semibold text-ink no-underline">
+              jobfit
+            </NavLink>{" "}
+            — {cwd}
+          </p>
+          <div className="flex min-w-12 justify-end">{account}</div>
+        </header>
         <nav
           aria-label="Main"
-          className="mx-auto flex w-full max-w-6xl flex-wrap items-baseline gap-x-8 gap-y-2 px-4 py-4 sm:px-6"
+          className="flex flex-wrap items-center gap-x-1 gap-y-1 px-4 pt-3 text-sm sm:px-8"
         >
-          <NavLink
-            to="/"
-            className="text-lg font-bold tracking-tight no-underline"
-          >
-            JobFit
-          </NavLink>
-          <ul className="flex flex-wrap gap-x-6 gap-y-1 text-base">
-            {NAV.map(({ to, label }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  end={to === "/"}
-                  className={({ isActive }) =>
-                    isActive
-                      ? "underline decoration-2"
-                      : "text-ink-muted no-underline hover:text-ink hover:underline"
-                  }
-                >
+          <span aria-hidden className="mr-1 text-ink-muted">
+            ←
+          </span>
+          {NAV.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === "/"}
+              className={({ isActive }) =>
+                `rounded-[2px] px-1.5 py-0.5 no-underline ${
+                  isActive
+                    ? "bg-spectrum font-semibold text-on-accent"
+                    : "text-ink hover:bg-select"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span aria-hidden>{isActive ? "◼" : "◻"} </span>
                   {label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-          <div className="ml-auto self-center">{account}</div>
+                </>
+              )}
+            </NavLink>
+          ))}
+          <span aria-hidden className="ml-1 text-ink-muted">
+            →
+          </span>
         </nav>
-      </header>
-      <div className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
-        {children}
-      </div>
-      <footer className="border-t border-rule">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-6 text-sm text-ink-muted sm:px-6">
-          <p className="font-semibold text-ink">{SCREENING_DISCLAIMER}</p>
-          <p>
+        <div className="w-full min-w-0 flex-1 px-4 py-8 sm:px-8 sm:py-10">
+          {children}
+        </div>
+        <footer className="space-y-1 border-t border-rule px-4 py-3 sm:px-8">
+          <p className="text-sm font-semibold">{SCREENING_DISCLAIMER}</p>
+          <p className="text-xs text-ink-muted">
             Employer data comes from the US Department of Labor (LCA and PERM
             disclosure files) and the USCIS H-1B Employer Data Hub.
           </p>
-        </div>
-      </footer>
-    </>
+        </footer>
+      </div>
+    </div>
   );
 }
 
@@ -120,7 +145,7 @@ function Account() {
         <SignInButton mode="modal">
           <button
             type="button"
-            className="font-semibold text-ink underline decoration-guilloche underline-offset-4 hover:decoration-2"
+            className="rounded-[2px] px-1.5 text-sm font-semibold text-accent hover:bg-select"
           >
             Sign in
           </button>
@@ -162,7 +187,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="mt-3">{details}</p>
         {stack && (
-          <pre className="mt-6 overflow-x-auto bg-sheet p-4 text-sm">
+          <pre className="mt-6 overflow-x-auto rounded-[var(--radius-sheet)] bg-sheet p-4 text-sm">
             <code>{stack}</code>
           </pre>
         )}

@@ -1,13 +1,19 @@
-import { ScreeningReport, type VISA_STATUSES } from "@jobfit/shared";
+import {
+  DAILY_SCREENINGS,
+  ScreeningReport,
+  type VISA_STATUSES,
+} from "@jobfit/shared";
 
 import type { Db } from "./db.server";
 
 export type VisaStatus = (typeof VISA_STATUSES)[number];
 
-export const DAILY_SCREENINGS = 30;
+export { DAILY_SCREENINGS };
 
 export interface Job {
   id: string;
+  /** "pasted", or the job link the user gave. */
+  source: string | null;
   rawText: string;
   company: string | null;
   title: string | null;
@@ -66,6 +72,7 @@ export async function createJob(
   db: Db,
   userId: string,
   rawText: string,
+  jobUrl?: string,
 ): Promise<string | null> {
   return asUser(db, userId, async () => {
     const { rows } = await db.query<{ n: number }>(
@@ -76,8 +83,8 @@ export async function createJob(
     if (rows[0].n >= DAILY_SCREENINGS) return null;
     const id = crypto.randomUUID();
     await db.query(
-      `INSERT INTO "JobPosting" (id, "userId", source, "rawText") VALUES ($1, $2, 'pasted', $3)`,
-      [id, userId, rawText],
+      `INSERT INTO "JobPosting" (id, "userId", source, "rawText") VALUES ($1, $2, $3, $4)`,
+      [id, userId, jobUrl || "pasted", rawText],
     );
     return id;
   });
@@ -90,7 +97,7 @@ export async function getJob(
 ): Promise<Job | null> {
   const { rows } = await asUser(db, userId, () =>
     db.query<Job>(
-      `SELECT id, "rawText", company, title, screening, "createdAt"
+      `SELECT id, source, "rawText", company, title, screening, "createdAt"
        FROM "JobPosting" WHERE id = $1`,
       [id],
     ),

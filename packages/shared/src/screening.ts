@@ -109,4 +109,14 @@ export const ScreenInput = z.object({
     .trim()
     .min(50, "Paste the full job description.")
     .max(30_000),
+  // http(s) only: the link is rendered as an href.
+  jobUrl: z
+    .union([
+      z.literal(""),
+      z.url({
+        protocol: /^https?$/,
+        error: "The job link should start with https://.",
+      }),
+    ])
+    .optional(),
 });
