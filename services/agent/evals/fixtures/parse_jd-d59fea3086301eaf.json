@@ -1,0 +1,23 @@
+{
+  "company": "Civic Digital Partners",
+  "title": "Software Developer (Benefits Modernization)",
+  "seniority": "unknown",
+  "location": "Washington, DC",
+  "work_model": "hybrid",
+  "employment_type": "fte",
+  "pay_min": 115000,
+  "pay_max": 140000,
+  "pay_unit": "year",
+  "required_skills": [
+    "java",
+    "spring",
+    "react"
+  ],
+  "preferred_skills": [],
+  "years_required": 3,
+  "raw_flags": [
+    "Due to federal contract requirements, candidates must be U.S. citizens.",
+    "Ability to pass a background check is required.",
+    "Pay range: $115,000 - $140,000."
+  ]
+}

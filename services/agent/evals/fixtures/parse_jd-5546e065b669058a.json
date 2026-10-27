@@ -1,0 +1,23 @@
+{
+  "company": "Ledgerly",
+  "title": "Backend Engineer (Python)",
+  "seniority": "unknown",
+  "location": "New York, NY",
+  "work_model": "hybrid",
+  "employment_type": "fte",
+  "pay_min": 150000,
+  "pay_max": 180000,
+  "pay_unit": "year",
+  "required_skills": [
+    "python",
+    "postgresql",
+    "aws"
+  ],
+  "preferred_skills": [],
+  "years_required": 4,
+  "raw_flags": [
+    "New York, NY (hybrid, 3 days in office)",
+    "Candidates must be authorized to work in the United States without the need for employer sponsorship now or in the future.",
+    "Base pay: $150,000 to $180,000."
+  ]
+}

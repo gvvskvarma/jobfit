@@ -60,6 +60,10 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pytest -rs
+      - name: Eval gate on recorded responses
+        run: uv run python -m evals.run_evals
+        env:
+          JOBFIT_LLM: replay
 
   secrets:
     runs-on: ubuntu-latest

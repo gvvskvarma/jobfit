@@ -1,0 +1,21 @@
+{
+  "company": "Brightcart",
+  "title": "Frontend Engineer",
+  "seniority": "unknown",
+  "location": null,
+  "work_model": "remote",
+  "employment_type": "fte",
+  "pay_min": 130000,
+  "pay_max": 155000,
+  "pay_unit": "year",
+  "required_skills": [
+    "react",
+    "typescript"
+  ],
+  "preferred_skills": [],
+  "years_required": 3,
+  "raw_flags": [
+    "Brightcart will not sponsor employment visas for this position.",
+    "Salary range: $130,000 - $155,000."
+  ]
+}

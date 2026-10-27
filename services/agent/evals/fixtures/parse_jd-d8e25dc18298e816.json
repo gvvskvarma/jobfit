@@ -1,0 +1,24 @@
+{
+  "company": "Cascade Cloud",
+  "title": "Software Engineer II, Storage",
+  "seniority": "mid",
+  "location": "Seattle, WA",
+  "work_model": "hybrid",
+  "employment_type": "fte",
+  "pay_min": 145000,
+  "pay_max": 205000,
+  "pay_unit": "year",
+  "required_skills": [
+    "go",
+    "rust",
+    "c++",
+    "distributed systems"
+  ],
+  "preferred_skills": [],
+  "years_required": 3,
+  "raw_flags": [
+    "This role is hybrid, three days a week in our Seattle office.",
+    "Candidates must relocate to Seattle before their start date.",
+    "The base salary range for this position is $145,000 to $205,000."
+  ]
+}

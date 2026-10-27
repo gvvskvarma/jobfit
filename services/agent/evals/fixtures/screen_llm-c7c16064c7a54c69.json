@@ -1,0 +1,10 @@
+{
+  "flags": [
+    {
+      "code": "WORK_AUTH_AMBIGUOUS",
+      "severity": "warn",
+      "evidence": "Applicants must have valid US work authorization.",
+      "explanation": "This wording doesn't say whether Pinewood sponsors H-1B visas, so ask the recruiter directly whether they sponsor H-1B now or in the future."
+    }
+  ]
+}

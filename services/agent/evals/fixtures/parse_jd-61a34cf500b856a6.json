@@ -1,0 +1,22 @@
+{
+  "company": "Lakeshore State University, Department of Genomics",
+  "title": "Research Software Engineer",
+  "seniority": "unknown",
+  "location": "Madison, WI",
+  "work_model": "unknown",
+  "employment_type": "fte",
+  "pay_min": 82000,
+  "pay_max": 95000,
+  "pay_unit": "year",
+  "required_skills": [
+    "python",
+    "linux",
+    "snakemake",
+    "nextflow"
+  ],
+  "preferred_skills": [],
+  "years_required": 2,
+  "raw_flags": [
+    "The university sponsors H-1B visas for eligible positions."
+  ]
+}
