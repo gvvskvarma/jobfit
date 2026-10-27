@@ -5,7 +5,9 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import time
+from datetime import date
 from pathlib import Path
 
 import polars as pl
@@ -168,22 +170,38 @@ def publish(
                (SELECT 1 FROM "EmployerYearStats" s WHERE s."employerId" = e.id)"""
         )
         cur.executemany(
-            """INSERT INTO "DatasetVersion" (source, "fiscalYear", "sourceUrl", sha256)
-               VALUES (%s, %s, %s, %s)
+            """INSERT INTO "DatasetVersion" (source, "fiscalYear", "sourceUrl", sha256,
+                 "coveredThrough")
+               VALUES (%s, %s, %s, %s, %s)
                ON CONFLICT (source, "fiscalYear") DO UPDATE SET "sourceUrl" = EXCLUDED."sourceUrl",
-                 sha256 = EXCLUDED.sha256, "loadedAt" = now()""",
+                 sha256 = EXCLUDED.sha256, "coveredThrough" = EXCLUDED."coveredThrough",
+                 "loadedAt" = now()""",
             versions,
         )
 
 
-def dataset_versions(years: list[int]) -> list[tuple[str, int, str, str]]:
+def covered_through(fy: int, files: list[Path]) -> date:
+    """The newest quarter loaded; DOL's current-year files are cumulative, so Q3 means Oct-Jun."""
+    quarter = max((int(m[1]) for f in files if (m := re.search(r"_Q([1-4])", f.name))), default=4)
+    return {1: date(fy - 1, 12, 31), 2: date(fy, 3, 31), 3: date(fy, 6, 30), 4: date(fy, 9, 30)}[
+        quarter
+    ]
+
+
+def dataset_versions(years: list[int]) -> list[tuple[str, int, str, str, date]]:
     """One row per source and year; sha256 covers every file that went into it."""
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
 
-    def row(source: str, fy: int, files: list[Path]) -> tuple[str, int, str, str]:
+    def row(source: str, fy: int, files: list[Path]) -> tuple[str, int, str, str, date]:
         entries = [manifest.get(f.name, {}) for f in files]
         digest = hashlib.sha256("".join(sorted(e.get("sha256", "") for e in entries)).encode())
-        return source, fy, entries[0].get("url", "unknown"), digest.hexdigest()
+        return (
+            source,
+            fy,
+            entries[0].get("url", "unknown"),
+            digest.hexdigest(),
+            covered_through(fy, files),
+        )
 
     rows = []
     for fy in years:

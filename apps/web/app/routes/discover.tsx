@@ -4,7 +4,13 @@ import { Form, Link } from "react-router";
 
 import { withDb } from "~/lib/db.server";
 import { discoverSponsors, latestFiscalYear } from "~/lib/employers.server";
-import { bucketLabel, formatCount, formatUsd, plural } from "~/lib/format";
+import {
+  bucketLabel,
+  formatCount,
+  formatUsd,
+  fyLabel,
+  plural,
+} from "~/lib/format";
 import { US_STATES } from "~/lib/states";
 import { button, field } from "~/components/ui";
 
@@ -33,11 +39,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   return withDb(env.DATABASE_URL, async (db) => {
     const latest = await latestFiscalYear(db);
     const years = (
-      await db.query<{ fy: number }>(
-        `SELECT DISTINCT "fiscalYear" AS fy FROM "DatasetVersion" WHERE source = 'LCA' ORDER BY 1 DESC`,
+      await db.query<{ fiscalYear: number; coveredThrough: string | null }>(
+        `SELECT "fiscalYear", to_char("coveredThrough", 'YYYY-MM-DD') AS "coveredThrough"
+           FROM "DatasetVersion" WHERE source = 'LCA' ORDER BY 1 DESC`,
       )
-    ).rows.map((r) => r.fy);
-    const fy = query.fy && years.includes(query.fy) ? query.fy : latest;
+    ).rows.map((y) => ({ fy: y.fiscalYear, label: fyLabel(y) }));
+    const fy =
+      query.fy && years.some((y) => y.fy === query.fy) ? query.fy : latest;
     const employers = fy ? await discoverSponsors(db, { ...query, fy }) : [];
     return {
       query: { ...query, fy },
@@ -99,9 +107,9 @@ export default function Discover({ loaderData }: Route.ComponentProps) {
           className={select}
           aria-label="Fiscal year"
         >
-          {years.map((fy) => (
+          {years.map(({ fy, label }) => (
             <option key={fy} value={fy}>
-              FY{fy}
+              {label}
             </option>
           ))}
         </select>
@@ -136,8 +144,9 @@ export default function Discover({ loaderData }: Route.ComponentProps) {
         <div className="mt-10 overflow-x-auto">
           <table className="tabular w-full text-left">
             <caption className="mb-3 text-left text-sm text-ink-muted">
-              {bucketLabel(query.bucket)} roles in {where}, FY{query.fy}. Ranked
-              by certified filings, then transfers, then green card filings.
+              {bucketLabel(query.bucket)} roles in {where},{" "}
+              {years.find((y) => y.fy === query.fy)?.label}. Ranked by certified
+              filings, then transfers, then green card filings.
             </caption>
             <thead className="text-sm text-ink-muted">
               <tr className="border-b border-rule">

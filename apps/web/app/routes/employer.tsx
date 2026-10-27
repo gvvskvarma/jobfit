@@ -5,7 +5,13 @@ import { FilingsChart } from "~/components/FilingsChart";
 import { PayRange } from "~/components/PayRange";
 import { withDb } from "~/lib/db.server";
 import { getEmployer, type YearStats } from "~/lib/employers.server";
-import { bucketLabel, formatCount, formatUsd } from "~/lib/format";
+import {
+  bucketLabel,
+  formatCount,
+  formatUsd,
+  fyLabel,
+  isPartial,
+} from "~/lib/format";
 import { US_STATES } from "~/lib/states";
 
 import type { Route } from "./+types/employer";
@@ -111,7 +117,7 @@ function YearTable({ years }: { years: YearStats[] }) {
       <tbody>
         {[...years].reverse().map((y) => (
           <tr key={y.fiscalYear} className="border-b border-rule last:border-0">
-            <td className="py-2 pr-4">FY{y.fiscalYear}</td>
+            <td className="py-2 pr-4">{fyLabel(y)}</td>
             <td className="py-2 pr-4 text-right">{cell(y.lcaCertified)}</td>
             <td className="py-2 pr-4 text-right">{cell(y.transfers)}</td>
             <td className="py-2 pr-4 text-right">{cell(y.newEmployment)}</td>
@@ -133,7 +139,9 @@ function YearTable({ years }: { years: YearStats[] }) {
 export default function Employer({
   loaderData: { employer },
 }: Route.ComponentProps) {
-  const latest = employer.years.at(-1);
+  // Headlines use the newest full year; a partial year would understate everything.
+  const latest =
+    employer.years.filter((y) => !isPartial(y)).at(-1) ?? employer.years.at(-1);
   const bands = employer.wageBands;
   const min = Math.min(...bands.map((b) => b.p25));
   const max = Math.max(...bands.map((b) => b.p75));

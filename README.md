@@ -36,8 +36,8 @@ DOL blocks automated downloads, so download the LCA and PERM disclosure `.xlsx` 
 
 ```
 cd services/agent
-uv run python -m etl.download --fy 2023 2024 2025   # fetches USCIS files, checks what's missing
-uv run python -m etl.publish --fy 2023 2024 2025    # loads into DATABASE_URL
+uv run python -m etl.download --fy 2024 2025 2026   # fetches USCIS files, checks what's missing
+for fy in 2024 2025 2026; do uv run python -m etl.publish --fy $fy; done   # one year at a time keeps memory near 3.5 GB
 ```
 
 ## API

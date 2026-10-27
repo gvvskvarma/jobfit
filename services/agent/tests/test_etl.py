@@ -176,3 +176,17 @@ def test_publish_round_trip(raw: Path, db: psycopg.Connection) -> None:
         with db.transaction():
             db.execute("""DELETE FROM "Employer" WHERE "normalizedName" LIKE 'ZZTEST%'""")
             db.execute('DELETE FROM "DatasetVersion" WHERE "fiscalYear" = %s', (FY,))
+
+
+def test_covered_through_reads_the_newest_quarter() -> None:
+    from datetime import date
+    from pathlib import Path
+
+    from etl.publish import covered_through
+
+    files = [Path("LCA_Disclosure_Data_FY2026_Q3.xlsx")]
+    assert covered_through(2026, files) == date(2026, 6, 30)
+    assert covered_through(
+        2025, [Path(f"LCA_Disclosure_Data_FY2025_Q{q}.xlsx") for q in (1, 2, 3, 4)]
+    ) == date(2025, 9, 30)
+    assert covered_through(2024, [Path("PERM_Disclosure_Data_FY2024.xlsx")]) == date(2024, 9, 30)
