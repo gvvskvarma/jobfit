@@ -634,7 +634,7 @@ Pure function of `visaStatus`, `authEndDate` and `EmploymentGap[]`, computed in 
 - Evidence vectors live in the `Evidence` table, so RLS covers them and account deletion removes them with the rows.
 - AuditLog for exports, deletes and admin views.
 - Redact PII before LLM tracing. Never send SSNs, A-numbers, passport or I-94 numbers (block them in input validation). The visa clock stores dates only.
-- Rate limits (KV counters): 30 screenings/day and 10 tailoring or draft runs/day per user. This also caps the API bill for a public deployment.
+- Rate limits: 30 screenings/day (counted from the user's JobPosting rows in Postgres, so no KV namespace is needed; each posting is screened once) and 10 tailoring or draft runs/day per user. This also caps the API bill for a public deployment.
 - Secrets live in Wrangler secrets and Google Secret Manager (Cloud Run), never in the repo. Run `gitleaks` in CI.
 
 ---
