@@ -69,9 +69,13 @@ export interface SponsorRow {
   medianPay: number | null;
 }
 
-/** The newest fiscal year with all four quarters; DOL's current-year file is partial. */
-const COMPLETE_FY = `(SELECT max("fiscalYear") FROM "DatasetVersion" WHERE source = 'LCA'
-  AND ("coveredThrough" IS NULL OR "coveredThrough" >= make_date("fiscalYear", 9, 30)))`;
+/** The newest fiscal year with all four quarters (DOL's current-year file is partial),
+ *  else the newest loaded; NULL when nothing is recorded. */
+const LATEST_FULL_FY = `(SELECT coalesce(
+    max("fiscalYear") FILTER (WHERE "coveredThrough" IS NULL
+      OR "coveredThrough" >= make_date("fiscalYear", 9, 30)),
+    max("fiscalYear"))
+  FROM "DatasetVersion" WHERE source = 'LCA')`;
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
@@ -87,7 +91,7 @@ export async function searchEmployers(
        FROM "Employer" e
        LEFT JOIN LATERAL (
          SELECT "fiscalYear", "lcaCertified", "changeEmployer" FROM "EmployerYearStats"
-          WHERE "employerId" = e.id AND "fiscalYear" <= ${COMPLETE_FY}
+          WHERE "employerId" = e.id AND "fiscalYear" <= coalesce(${LATEST_FULL_FY}, "fiscalYear")
           ORDER BY "fiscalYear" DESC LIMIT 1
        ) s ON true
       WHERE e."displayName" ILIKE $1 OR e."normalizedName" ILIKE $1
@@ -146,7 +150,7 @@ export async function getEmployer(
 
 export async function latestFiscalYear(db: Db): Promise<number | null> {
   const { rows } = await db.query<{ fy: number | null }>(
-    `SELECT ${COMPLETE_FY} AS fy`,
+    `SELECT ${LATEST_FULL_FY} AS fy`,
   );
   return rows[0]?.fy ?? null;
 }

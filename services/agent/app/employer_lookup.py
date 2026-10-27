@@ -46,8 +46,9 @@ def lookup_employer(
     ).fetchone()
     # Partial years (the current year's cumulative file) would understate every employer.
     latest = cur.execute(
-        """SELECT max("fiscalYear") AS fy FROM "DatasetVersion" WHERE source = 'LCA'
-            AND ("coveredThrough" IS NULL OR "coveredThrough" >= make_date("fiscalYear", 9, 30))"""
+        """SELECT coalesce(max("fiscalYear") FILTER (WHERE "coveredThrough" IS NULL
+                 OR "coveredThrough" >= make_date("fiscalYear", 9, 30)), max("fiscalYear")) AS fy
+             FROM "DatasetVersion" WHERE source = 'LCA'"""
     ).fetchone()
     if not emp or not latest or latest["fy"] is None:
         return EmployerSignal(employer=company, matched=False)
