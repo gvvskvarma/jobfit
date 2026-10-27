@@ -5,6 +5,7 @@ import { Form, Link } from "react-router";
 import { withDb } from "~/lib/db.server";
 import { searchEmployers } from "~/lib/employers.server";
 import { formatCount } from "~/lib/format";
+import { button, field } from "~/components/ui";
 
 import type { Route } from "./+types/employers";
 
@@ -33,7 +34,12 @@ export default function Employers({
 }: Route.ComponentProps) {
   return (
     <main>
-      <h1 className="text-3xl font-bold tracking-tight">Look up an employer</h1>
+      <h1 className="text-2xl font-bold sm:text-3xl">
+        <span aria-hidden className="mr-3 text-pink">
+          ●
+        </span>
+        Look up an employer
+      </h1>
       <Form method="get" role="search" className="measure mt-6 flex gap-2">
         <label htmlFor="q" className="sr-only">
           Employer name
@@ -47,12 +53,9 @@ export default function Employers({
           maxLength={100}
           required
           placeholder="Company name, for example Microsoft"
-          className="min-w-0 flex-1 rounded-[var(--radius-field)] border border-rule bg-sheet px-3 py-2 text-lg placeholder:text-ink-muted"
+          className={`${field} min-w-0 flex-1 px-3 py-2 placeholder:text-ink-muted`}
         />
-        <button
-          type="submit"
-          className="rounded-[var(--radius-field)] bg-ink px-4 py-2 font-semibold text-paper hover:bg-guilloche"
-        >
+        <button type="submit" className={button}>
           Search
         </button>
       </Form>

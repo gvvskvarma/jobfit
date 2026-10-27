@@ -1,19 +1,31 @@
 @import "tailwindcss" source(".");
-@import "@fontsource-variable/libre-franklin";
-@import "@fontsource-variable/source-serif-4/opsz-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/400-italic.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+@import "@fontsource/ibm-plex-mono/700.css";
 
 /* Tokens from docs/DESIGN.md. Dark mode is its own set of steps, not an inversion. */
 :root {
-  --paper: #eef2ef;
-  --sheet: #f8faf8;
-  --ink: #1c2a3a;
-  --ink-muted: #4a5868;
-  --rule: #c9d3ce;
-  --grid: #d9e0dc;
-  --guilloche: #2f7f7a;
-  --approval: #3d4fb8;
-  --denial: #a8324a;
-  --highlighter: #f2dc6b;
+  --desk: #f3f1fb;
+  --paper: #ffffff;
+  --sheet: #f7f6fd;
+  --ink: #1b1a2e;
+  --ink-muted: #5f5d75;
+  --rule: #e3e0f0;
+  --grid: #ebe9f5;
+  --select: #f1effc;
+  --accent: #6a45f5;
+  --on-accent: #ffffff;
+  --pink: #c42b72;
+  --cyan: #087389;
+  --approval: #0f7a57;
+  --caution: #8f5b00;
+  --denial: #c92339;
+  --highlighter: #ffe58f;
+  --aurora-1: #c9b8ff;
+  --aurora-2: #ffc2dc;
+  --aurora-3: #b5ecf5;
   --chart-certified: #00897b;
   --chart-transfers: #3d4fb8;
   --range-opacity: 0.35;
@@ -22,85 +34,124 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #121b26;
-    --sheet: #18232f;
-    --ink: #e4eae6;
-    --ink-muted: #a9b6b0;
-    --rule: #2a3946;
-    --grid: #24323f;
-    --guilloche: #5fb3ac;
-    --approval: #8f9bff;
-    --denial: #f07a90;
-    --highlighter: #6b5a12;
+    --desk: #0a0912;
+    --paper: #13121d;
+    --sheet: #1a1927;
+    --ink: #eceaf6;
+    --ink-muted: #9c99b3;
+    --rule: #2d2b40;
+    --grid: #24223a;
+    --select: #252338;
+    --accent: #a18bff;
+    --on-accent: #13121d;
+    --pink: #ff6fae;
+    --cyan: #56d4ea;
+    --approval: #47d6a2;
+    --caution: #f5b83d;
+    --denial: #ff6378;
+    --highlighter: #5a4700;
+    --aurora-1: #3b2a8c;
+    --aurora-2: #7a1f55;
+    --aurora-3: #0f5266;
     --chart-certified: #26a69a;
-    --chart-transfers: #6b7bee;
+    --chart-transfers: #7b7bff;
     --range-opacity: 0.6;
     color-scheme: dark;
   }
 }
 
 @theme {
-  --font-sans: "Libre Franklin Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Source Serif 4 Variable", Georgia, serif;
+  --font-sans:
+    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-mono:
+    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
+  --color-desk: var(--desk);
   --color-paper: var(--paper);
   --color-sheet: var(--sheet);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-rule: var(--rule);
-  --color-guilloche: var(--guilloche);
+  --color-select: var(--select);
+  --color-accent: var(--accent);
+  --color-pink: var(--pink);
+  --color-cyan: var(--cyan);
+  --color-on-accent: var(--on-accent);
   --color-approval: var(--approval);
+  --color-caution: var(--caution);
   --color-denial: var(--denial);
   --color-highlighter: var(--highlighter);
   --color-chart-certified: var(--chart-certified);
   --color-chart-transfers: var(--chart-transfers);
 
-  /* 1.25 ratio from a 16px base (Elements of Typographic Style) */
-  --text-sm: 0.8rem;
-  --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5625rem;
-  --text-2xl: 1.953rem;
-  --text-3xl: 2.441rem;
-  --text-4xl: 3.052rem;
+  /* Monospace reads large, so the scale steps by 1.2 from a 15px base. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.62rem;
+  --text-3xl: 1.944rem;
+  --text-4xl: 2.333rem;
 
-  --radius-field: 2px;
-  --radius-sheet: 6px;
+  --radius-field: 3px;
+  --radius-sheet: 4px;
+  --radius-window: 12px;
 }
 
 @layer base {
   html {
-    background: var(--paper);
+    /* The window floats over a soft aurora; fixed so it doesn't scroll with the page. */
+    background:
+      radial-gradient(40rem 30rem at 12% 8%, var(--aurora-1), transparent 70%),
+      radial-gradient(36rem 28rem at 92% 18%, var(--aurora-2), transparent 70%),
+      radial-gradient(
+        44rem 30rem at 60% 100%,
+        var(--aurora-3),
+        transparent 70%
+      ),
+      var(--desk);
+    background-attachment: fixed;
     color: var(--ink);
     font-family: var(--font-sans);
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
   h1,
   h2,
   h3 {
-    line-height: 1.15;
+    line-height: 1.25;
     text-wrap: balance;
   }
   p {
     text-wrap: pretty;
   }
   a {
-    color: inherit;
+    color: var(--accent);
     text-decoration-line: underline;
-    text-decoration-color: var(--guilloche);
-    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    text-underline-offset: 0.25em;
+  }
+  a:hover {
+    text-decoration-color: var(--accent);
+  }
+  /* In dense tables a column of accent links is noise; names stay ink until hovered. */
+  td a {
+    color: var(--ink);
+    text-decoration-color: var(--rule);
   }
   :focus-visible {
-    outline: 2px solid var(--guilloche);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--select);
   }
   /* Employer-quoted text: the employer's words, never ours (DESIGN.md, Type). */
   q,
   blockquote {
-    font-family: var(--font-serif);
     font-style: italic;
-    line-height: 1.6;
   }
 }
 
@@ -109,7 +160,57 @@
 }
 
 @utility measure {
-  max-width: 70ch;
+  max-width: 80ch;
+}
+
+/* Violet to pink to cyan: the wordmark, the active tab and the primary button share it. */
+@utility bg-spectrum {
+  background-image: linear-gradient(
+    in oklch 100deg,
+    var(--accent),
+    var(--pink) 50%,
+    var(--cyan) 100%
+  );
+  background-size: 200% 100%;
+}
+@utility text-spectrum {
+  background-image: linear-gradient(
+    in oklch 100deg,
+    var(--accent),
+    var(--pink),
+    var(--cyan),
+    var(--accent)
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: drift 12s linear infinite;
+}
+@keyframes drift {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+.pixel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: power-on 420ms cubic-bezier(0.2, 0.8, 0.2, 1.2) both;
+}
+@keyframes power-on {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@utility cursor-blink {
+  animation: blink 1.1s steps(1) infinite;
 }
 
 ::view-transition-group(*) {
@@ -118,6 +219,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cursor-blink,
+  .pixel,
+  .text-spectrum {
+    animation: none;
+  }
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {

@@ -63,7 +63,7 @@ function Notices({
       text: "May be cap-exempt, because it looks like a university or research institute. Cap-exempt employers can file H-1Bs outside the lottery. Confirm with the employer.",
     },
     year.h1bDependent && {
-      tone: "border-highlighter",
+      tone: "border-caution",
       text: "Files as H-1B dependent: a large share of its workforce is on H-1B, which adds recruiting rules for some new hires.",
     },
     year.willfulViolator && {
@@ -141,9 +141,12 @@ export default function Employer({
   return (
     <main>
       <h1
-        className="text-3xl font-bold tracking-tight sm:text-4xl"
+        className="text-2xl font-bold sm:text-3xl"
         style={{ viewTransitionName: `employer-${employer.id}` }}
       >
+        <span aria-hidden className="mr-3 text-pink">
+          ●
+        </span>
         {employer.name}
       </h1>
       {latest ? (
@@ -160,7 +163,7 @@ export default function Employer({
       )}
 
       <section
-        className="mt-12 rounded-[var(--radius-sheet)] bg-sheet p-4 sm:p-6"
+        className="mt-12 rounded-[var(--radius-sheet)] border border-rule p-4 sm:p-6"
         aria-labelledby="history"
       >
         <h2 id="history" className="text-xl font-bold">

@@ -4,6 +4,16 @@ import { env } from "cloudflare:workers";
 import { useRef } from "react";
 import { Form, Link, redirect, useNavigation } from "react-router";
 
+import { Cursor, Wordmark, Working } from "~/components/terminal";
+import {
+  Hints,
+  Meta,
+  Panel,
+  VerdictTag,
+  button,
+  field,
+  quietButton,
+} from "~/components/ui";
 import { agent, currentEmail, currentUserId } from "~/lib/auth.server";
 import { withDb } from "~/lib/db.server";
 import {
@@ -21,15 +31,6 @@ import sample from "~/lib/sample-report.json";
 
 import type { Route } from "./+types/home";
 
-const VERDICT_TAG: Record<ScreeningReport["verdict"], [string, string]> = {
-  apply: ["Apply", "border-approval text-approval"],
-  apply_with_caution: [
-    "Apply with caution",
-    "border-ink bg-highlighter text-ink",
-  ],
-  skip: ["Skip", "border-denial text-denial"],
-};
-
 const VISA_LABEL: Record<VisaStatus, string> = {
   H1B: "H-1B",
   OPT: "OPT",
@@ -39,6 +40,19 @@ const VISA_LABEL: Record<VisaStatus, string> = {
   CITIZEN_OR_GC: "US citizen or green card holder",
   OTHER: "Something else",
 };
+
+const STEPS = [
+  "Reading the posting",
+  "Checking sponsorship and work-authorization wording",
+  "Checking ITAR, export control and clearances",
+  "Looking up the employer's H-1B record",
+  "Comparing pay with what it paid H-1B hires",
+];
+
+const day = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+});
 
 export function meta() {
   return [
@@ -58,7 +72,9 @@ export async function loader(args: Route.LoaderArgs) {
     visaStatus: (await getVisaStatus(db, userId)).visaStatus,
     jobs: (await recentJobs(db, userId)).map((j) => ({
       id: j.id,
-      label: [j.title, j.company].filter(Boolean).join(" at ") || "Job posting",
+      title: j.title ?? "Job posting",
+      company: j.company,
+      date: day.format(j.createdAt),
       verdict: j.screening
         ? ScreeningReport.shape.verdict.parse(
             (j.screening as { verdict: unknown }).verdict,
@@ -72,7 +88,10 @@ export async function action(args: Route.ActionArgs) {
   const userId = await currentUserId(args);
   if (!userId) return { error: "Sign in to screen a job." };
   const form = await args.request.formData();
-  const input = ScreenInput.safeParse({ jobText: form.get("jobText") });
+  const input = ScreenInput.safeParse({
+    jobText: form.get("jobText"),
+    jobUrl: form.get("jobUrl") ?? "",
+  });
   if (!input.success) return { error: input.error.issues[0].message };
   const visa = form.get("visaStatus");
   const visaStatus = VISA_STATUSES.find((v) => v === visa) ?? null;
@@ -82,7 +101,12 @@ export async function action(args: Route.ActionArgs) {
     const email = exists ? "" : await currentEmail(args, userId);
     await saveUser(db, userId, email, visaStatus);
 
-    const id = await createJob(db, userId, input.data.jobText);
+    const id = await createJob(
+      db,
+      userId,
+      input.data.jobText,
+      input.data.jobUrl,
+    );
     if (!id) {
       return {
         error: `You've screened ${DAILY_SCREENINGS} jobs in the last day, the daily limit. Try again tomorrow.`,
@@ -100,76 +124,105 @@ export async function action(args: Route.ActionArgs) {
   });
 }
 
-const CHECKS =
-  "sponsorship and work-authorization wording, ITAR, export control and clearances, contract terms, relocation, and pay against what the employer paid H-1B hires";
-
 export default function Home({ loaderData, actionData }: Route.ComponentProps) {
+  const form = useRef<HTMLFormElement>(null);
   const text = useRef<HTMLTextAreaElement>(null);
   const busy = useNavigation().state === "submitting";
 
   return (
-    <main>
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-        Check a job before you apply
-      </h1>
+    <main className="space-y-10">
+      <header className="space-y-4">
+        <Wordmark />
+        <p className="measure text-lg">
+          Check a job before you apply.{" "}
+          <span className="text-ink-muted">
+            Paste a posting and JobFit reads it for sponsorship, ITAR and
+            contract terms, then pulls the employer's real H-1B and green card
+            record.
+          </span>
+        </p>
+      </header>
 
-      <Form method="post" className="mt-6">
-        <label htmlFor="jobText" className="sr-only">
-          Job description
-        </label>
-        <textarea
-          ref={text}
-          id="jobText"
-          name="jobText"
-          required
-          minLength={50}
-          maxLength={30_000}
-          rows={14}
-          placeholder="Paste the job description here"
-          aria-describedby={actionData?.error ? "screen-error" : undefined}
-          className="block w-full resize-y rounded-[var(--radius-sheet)] border border-rule bg-sheet p-4 text-base leading-relaxed placeholder:text-ink-muted focus:border-guilloche sm:p-6"
-        />
+      <Form ref={form} method="post" className="space-y-4">
+        <Panel
+          title={
+            <>
+              <span className="text-pink">›</span> paste the job posting
+              {!busy && <Cursor />}
+            </>
+          }
+          className="focus-within:border-accent focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--accent)_14%,transparent)]"
+        >
+          <label htmlFor="jobText" className="sr-only">
+            Job description
+          </label>
+          <textarea
+            ref={text}
+            id="jobText"
+            name="jobText"
+            required
+            minLength={50}
+            maxLength={30_000}
+            rows={12}
+            placeholder="About the job…"
+            aria-describedby={actionData?.error ? "screen-error" : undefined}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                form.current?.requestSubmit();
+              }
+              if (e.key === "Escape") e.currentTarget.value = "";
+            }}
+            className="block w-full resize-y bg-transparent leading-relaxed placeholder:text-ink-muted focus:outline-none"
+          />
+        </Panel>
 
         <Show when="signed-in">
-          <p className="mt-4">
-            <label htmlFor="visaStatus">My status:</label>
-            <select
-              id="visaStatus"
-              name="visaStatus"
-              defaultValue={loaderData.visaStatus ?? "H1B"}
-              className="mx-2 rounded-[var(--radius-field)] border border-rule bg-sheet px-2 py-1 font-semibold text-ink"
-            >
-              {VISA_STATUSES.map((v) => (
-                <option key={v} value={v}>
-                  {VISA_LABEL[v]}
-                </option>
-              ))}
-            </select>
-          </p>
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">
+            <label className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-md">
+              <span className="shrink-0 text-ink-muted">job link</span>
+              <input
+                type="url"
+                name="jobUrl"
+                placeholder="https://… (optional, for the apply button)"
+                className={`${field} min-w-0 flex-1`}
+              />
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="text-ink-muted">my status</span>
+              <select
+                name="visaStatus"
+                defaultValue={loaderData.visaStatus ?? "H1B"}
+                className={`${field} font-semibold`}
+              >
+                {VISA_STATUSES.map((v) => (
+                  <option key={v} value={v}>
+                    {VISA_LABEL[v]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </Show>
 
         {actionData?.error && (
           <p
             id="screen-error"
             role="alert"
-            className="mt-4 border-l-4 border-denial pl-3"
+            className="border-l-2 border-denial pl-3 text-denial"
           >
-            {actionData.error}
+            ✗ {actionData.error}
           </p>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Show when="signed-in">
-            <button
-              type="submit"
-              disabled={busy}
-              className="rounded-[var(--radius-field)] bg-ink px-5 py-2 text-lg font-semibold text-paper hover:bg-guilloche disabled:bg-ink-muted"
-            >
-              {busy ? "Reading the posting…" : "Screen this job"}
+            <button type="submit" disabled={busy} className={button}>
+              <span aria-hidden>◼</span> Screen this job
             </button>
             <button
               type="button"
-              className="font-semibold underline decoration-guilloche underline-offset-4 hover:decoration-2"
+              className={quietButton}
               onClick={() => {
                 if (text.current) text.current.value = sample.jobText;
                 text.current?.focus();
@@ -180,54 +233,73 @@ export default function Home({ loaderData, actionData }: Route.ComponentProps) {
           </Show>
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button
-                type="button"
-                className="rounded-[var(--radius-field)] bg-ink px-5 py-2 text-lg font-semibold text-paper hover:bg-guilloche"
-              >
-                Sign in to screen this job
+              <button type="button" className={button}>
+                <span aria-hidden>◼</span> Sign in to screen this job
               </button>
             </SignInButton>
-            <Link to="/sample" viewTransition className="font-semibold">
+            <Link to="/sample" viewTransition className={quietButton}>
               See a sample report
             </Link>
           </Show>
         </div>
+
+        {busy ? (
+          <Working steps={STEPS} />
+        ) : (
+          <Hints
+            items={[
+              "⌘↵ to screen",
+              "Esc to clear",
+              `${DAILY_SCREENINGS} screenings a day`,
+            ]}
+          />
+        )}
       </Form>
 
-      <p className="measure mt-6 text-ink-muted">
-        What gets checked: {CHECKS}. Employer records come from public
-        Department of Labor and USCIS data, and you can{" "}
-        <Link to="/discover">find employers that sponsor your role</Link>{" "}
-        without signing in.
-      </p>
+      <Meta>
+        Checks sponsorship and work-authorization wording, ITAR, export control
+        and clearances, contract terms, relocation, and pay against what the
+        employer paid H-1B hires. No sign-in needed to{" "}
+        <Link to="/discover">find employers that sponsor your role</Link>.
+      </Meta>
 
       {loaderData.jobs.length > 0 && (
-        <section aria-labelledby="recent" className="mt-12">
-          <h2 id="recent" className="text-xl font-bold">
-            Your recent jobs
-          </h2>
-          <ul className="mt-4 divide-y divide-rule border-y border-rule">
+        <Panel title="recent jobs">
+          <ul className="-mx-2">
             {loaderData.jobs.map((j) => (
-              <li
-                key={j.id}
-                className="flex items-center justify-between gap-4 py-3"
-              >
-                <Link to={`/jobs/${j.id}`} className="font-semibold">
-                  {j.label}
-                </Link>
-                {j.verdict ? (
+              <li key={j.id}>
+                <Link
+                  to={`/jobs/${j.id}`}
+                  viewTransition
+                  className="group flex items-center gap-3 rounded-[2px] px-2 py-1.5 text-ink no-underline transition-colors hover:bg-select"
+                >
                   <span
-                    className={`shrink-0 rounded-[var(--radius-field)] border-2 px-2 text-sm font-bold ${VERDICT_TAG[j.verdict][1]}`}
+                    aria-hidden
+                    className="text-pink opacity-0 transition-opacity group-hover:opacity-100"
                   >
-                    {VERDICT_TAG[j.verdict][0]}
+                    ›
                   </span>
-                ) : (
-                  <span className="text-sm text-ink-muted">Not screened</span>
-                )}
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="font-semibold">{j.title}</span>
+                    {j.company && (
+                      <span className="text-ink-muted"> at {j.company}</span>
+                    )}
+                  </span>
+                  {j.verdict ? (
+                    <VerdictTag verdict={j.verdict} />
+                  ) : (
+                    <span className="shrink-0 text-xs text-ink-muted">
+                      not screened
+                    </span>
+                  )}
+                  <span className="hidden w-14 shrink-0 text-right text-xs text-ink-muted sm:block">
+                    {j.date}
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>
-        </section>
+        </Panel>
       )}
     </main>
   );
