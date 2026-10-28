@@ -50,6 +50,10 @@ for fy in 2024 2025 2026; do uv run python -m etl.publish --fy $fy; done   # one
 | `POST /api/jobs` `{jobText}` | Saves a posting for the signed-in user and returns its `id` (30 a day) |
 | `POST /api/jobs/:id/screen` | Screens a saved posting once and returns the report; later calls return the stored report |
 | `POST /api/posting` `url=` | Pulls a posting's text from a company careers, Greenhouse, Lever or Ashby link (job boards are refused) |
+| `GET /api/evidence` | The signed-in user's experience bank, in resume order |
+| `POST /api/evidence` `{items}` | Adds items to the bank (up to 300) and embeds them |
+| `PUT /api/evidence/:id` | Replaces an item; its text is re-embedded |
+| `DELETE /api/evidence/:id` | Removes an item |
 
 ## Data sources
 

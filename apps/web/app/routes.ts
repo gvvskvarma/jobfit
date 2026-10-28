@@ -13,4 +13,7 @@ export default [
   route("api/jobs", "routes/api.jobs.ts"),
   route("api/posting", "routes/api.posting.ts"),
   route("api/jobs/:id/screen", "routes/api.job-screen.ts"),
+  route("bank", "routes/bank.tsx"),
+  route("api/evidence", "routes/api.evidence.ts"),
+  route("api/evidence/:id", "routes/api.evidence-item.ts"),
 ] satisfies RouteConfig;

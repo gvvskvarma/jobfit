@@ -48,6 +48,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 2s --health-retries 30
     env:
       DATABASE_URL: postgresql://jobfit:jobfit@localhost:5432/jobfit_local
+      FASTEMBED_CACHE_PATH: /home/runner/.cache/fastembed
     defaults:
       run:
         working-directory: services/agent
@@ -56,6 +57,11 @@ jobs:
       - name: Apply Prisma migrations
         run: for f in ../../packages/db/prisma/migrations/*/migration.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f "$f"; done
       - uses: astral-sh/setup-uv@v10.3.2
+      - name: Cache the embedding model
+        uses: actions/cache@v6
+        with:
+          path: /home/runner/.cache/fastembed
+          key: fastembed-bge-small-en-v1.5
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .

@@ -23,6 +23,7 @@ import "./app.css";
 
 const NAV = [
   { to: "/", label: "Screen" },
+  { to: "/bank", label: "Bank" },
   { to: "/discover", label: "Sponsors" },
   { to: "/employers", label: "Employers" },
 ];
@@ -59,6 +60,7 @@ const TITLES: [string, string][] = [
   ["/employers", "~/employers"],
   ["/discover", "~/sponsors"],
   ["/sample", "~/sample"],
+  ["/bank", "~/bank"],
 ];
 
 /** The terminal window every page lives in; the error boundary renders it without Clerk. */

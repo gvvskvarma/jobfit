@@ -68,6 +68,23 @@ export async function saveUser(
 }
 
 /** Creates a posting unless the user already hit today's limit; returns null when they have. */
+/** Years from the first job start to the latest end in the bank (SPEC 8.4, SENIORITY_MISMATCH). */
+export async function experienceYears(
+  db: Db,
+  userId: string,
+): Promise<number | null> {
+  const { rows } = await asUser(db, userId, () =>
+    db.query<{ years: number | null }>(
+      `SELECT floor(extract(epoch FROM max(coalesce("endDate", now())) - min("startDate"))
+                    / 31557600)::int AS years
+       FROM "Evidence"
+       WHERE "userId" = $1 AND kind = 'BULLET' AND "startDate" IS NOT NULL`,
+      [userId],
+    ),
+  );
+  return rows[0]?.years ?? null;
+}
+
 export async function createJob(
   db: Db,
   userId: string,
@@ -177,20 +194,19 @@ export async function signRequest(
   );
 }
 
-export async function callAgent(
+/** POSTs a signed JSON body to the agent and returns its JSON reply. */
+export async function postAgent(
   agent: { url: string; secret: string },
   userId: string,
-  jobText: string,
-  visaStatus: VisaStatus | null,
-): Promise<ScreeningReport> {
-  const body = JSON.stringify({
-    job_text: jobText,
-    user: { visa_status: visaStatus },
-  });
+  path: string,
+  payload: unknown,
+  timeoutMs = 30_000,
+): Promise<unknown> {
+  const body = JSON.stringify(payload);
   const timestamp = String(Math.floor(Date.now() / 1000));
   let res: Response;
   try {
-    res = await fetch(`${agent.url}/screen`, {
+    res = await fetch(`${agent.url}${path}`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -204,10 +220,10 @@ export async function callAgent(
         ),
       },
       body,
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
-    throw new AgentError(503, "The screening service isn't reachable.");
+    throw new AgentError(503, "The JobFit agent isn't reachable.");
   }
   if (!res.ok) {
     const detail = await res
@@ -216,10 +232,21 @@ export async function callAgent(
       .catch(() => null);
     throw new AgentError(
       res.status,
-      typeof detail === "string" ? detail : "The screening failed.",
+      typeof detail === "string" ? detail : "The request to the agent failed.",
     );
   }
-  return ScreeningReport.parse(await res.json());
+  return res.json();
+}
+
+export async function callAgent(
+  agent: { url: string; secret: string },
+  userId: string,
+  jobText: string,
+  user: { visa_status: VisaStatus | null; experience_years: number | null },
+): Promise<ScreeningReport> {
+  return ScreeningReport.parse(
+    await postAgent(agent, userId, "/screen", { job_text: jobText, user }),
+  );
 }
 
 /** Screens a saved posting once; later calls return the stored report. */
@@ -231,7 +258,10 @@ export async function screenJob(
 ): Promise<ScreeningReport> {
   if (job.screening) return ScreeningReport.parse(job.screening);
   const { visaStatus } = await getVisaStatus(db, userId);
-  const report = await callAgent(agent, userId, job.rawText, visaStatus);
+  const report = await callAgent(agent, userId, job.rawText, {
+    visa_status: visaStatus,
+    experience_years: await experienceYears(db, userId),
+  });
   await saveScreening(db, userId, job.id, report);
   return report;
 }

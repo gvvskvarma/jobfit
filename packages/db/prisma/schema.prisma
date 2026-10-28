@@ -83,6 +83,8 @@ model Evidence {
   endDate   DateTime?
   // ponytail: no ANN index; exact scan per user is instant at a few hundred rows. Add HNSW via raw SQL if banks grow.
   embedding Unsupported("vector(384)")?
+  /// clock_timestamp() advances per row, so a batch insert keeps the resume's order.
+  createdAt DateTime                    @default(dbgenerated("clock_timestamp()")) @db.Timestamp(6)
   user      User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])

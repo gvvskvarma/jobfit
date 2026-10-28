@@ -1,7 +1,7 @@
 """The agent's contract (SPEC 8.1). Mirrored as Zod in packages/shared/src/screening.ts;
 change both in the same PR."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
@@ -99,3 +99,25 @@ class UserContext(BaseModel):
 
     visa_status: VisaStatus | None = None
     experience_years: int | None = None
+
+
+EvidenceKind = Literal["BULLET", "PROJECT", "ACHIEVEMENT", "CERT", "EDUCATION"]
+Month = Annotated[str, Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")]
+
+
+class EvidenceDraft(BaseModel):
+    """One claim split out of an imported resume, shown for review before it's saved."""
+
+    kind: EvidenceKind
+    text: str = Field(min_length=1, max_length=1000)
+    company: str | None = None
+    project: str | None = None
+    tags: list[str] = Field(default_factory=list, max_length=6)
+    start: Month | None = None
+    end: Month | None = None
+
+
+class EvidenceHit(BaseModel):
+    evidence_id: str
+    text: str
+    score: float
