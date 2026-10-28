@@ -120,3 +120,46 @@ export const ScreenInput = z.object({
     ])
     .optional(),
 });
+
+export const EVIDENCE_KINDS = [
+  "BULLET",
+  "PROJECT",
+  "ACHIEVEMENT",
+  "CERT",
+  "EDUCATION",
+] as const;
+
+const month = z
+  .string()
+  .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Use YYYY-MM.")
+  .nullable()
+  .default(null);
+const optionalName = z
+  .string()
+  .trim()
+  .max(200)
+  .nullable()
+  .default(null)
+  .transform((s) => s || null);
+
+/** One experience-bank item: imported for review, then saved; also the manual add/edit form. */
+export const EvidenceDraft = z.object({
+  kind: z.enum(EVIDENCE_KINDS),
+  text: z.string().trim().min(1, "The item needs some text.").max(1000),
+  company: optionalName,
+  project: optionalName,
+  tags: z
+    .array(z.string().trim().toLowerCase().min(1).max(40))
+    .max(6)
+    .default([]),
+  start: month,
+  end: month,
+});
+export type EvidenceDraft = z.infer<typeof EvidenceDraft>;
+
+export const EvidenceHit = z.object({
+  evidence_id: z.string(),
+  text: z.string(),
+  score: z.number(),
+});
+export type EvidenceHit = z.infer<typeof EvidenceHit>;

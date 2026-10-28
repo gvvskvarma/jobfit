@@ -55,7 +55,9 @@ def wrap_posting(text: str) -> str:
     return f"<job_posting>\n{safe}\n</job_posting>"
 
 
-def _call[T: BaseModel](task: str, user: str, schema: type[T]) -> T:
+def _call[T: BaseModel](
+    task: str, user: str, schema: type[T], max_tokens: int = 4096, timeout: float = 20.0
+) -> T:
     system = [
         {
             "type": "text",
@@ -68,11 +70,12 @@ def _call[T: BaseModel](task: str, user: str, schema: type[T]) -> T:
         try:
             response = client().messages.parse(
                 model=MODEL_FAST,
-                max_tokens=4096,
+                max_tokens=max_tokens,
                 system=system,
                 messages=[{"role": "user", "content": content}],
                 output_format=schema,
                 output_config={"effort": "low"},
+                timeout=timeout,
             )
         except ValidationError as e:
             content = f"{user}\n\nA previous answer failed validation: {e}. Follow the schema."

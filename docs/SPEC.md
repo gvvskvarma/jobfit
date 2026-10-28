@@ -186,7 +186,7 @@ model Evidence {
   tags      String[]             // ["react","performance","lighthouse"]
   startDate DateTime?
   endDate   DateTime?
-  embedding Unsupported("vector(384)")?   // HNSW index created in a raw SQL migration
+  embedding Unsupported("vector(384)")?   // no ANN index: an exact scan per user is instant at a few hundred rows
   user      User     @relation(fields: [userId], references: [id])
 }
 enum EvidenceKind { BULLET PROJECT ACHIEVEMENT CERT EDUCATION }
@@ -477,7 +477,7 @@ START → parse_jd → screen_rules → employer_lookup → screen_llm → decid
 | `lookup_employer` | `{name, state?}` | `EmployerSignal` | SQL only, no LLM |
 | `wage_band` | `{employer_id, title, state?}` | p25/median/p75 | needs n ≥ 5 |
 | `discover_sponsors` | `{title_bucket, state?, fiscal_year?, limit=50}` | ranked employers | SQL only; rank by certified LCAs, then transfers, then PERM |
-| `search_evidence` | `{query, top_k=8}` | `[{evidence_id, text, score}]` | pgvector cosine search filtered by `userId` (RLS also enforces it) |
+| `search_evidence` | `{query, top_k=8}` | `[{evidence_id, text, score}]` | hybrid search: pgvector cosine and Postgres full-text ranks merged by reciprocal rank fusion, filtered by `userId` (RLS also enforces it) |
 | `get_skill_memory` | `{skills[]}` | `{skill: status}` | agent memory |
 | `set_skill_status` | `{skill, status, context?}` | ok | only after user answers |
 | `log_application` | `{company, role, status, score}` | application id | |

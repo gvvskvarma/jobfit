@@ -6,7 +6,14 @@ from typing import get_args
 
 import pytest
 
-from app.schemas import SCREENING_DISCLAIMER, FlagCode, Severity, Verdict, VisaStatus
+from app.schemas import (
+    SCREENING_DISCLAIMER,
+    EvidenceKind,
+    FlagCode,
+    Severity,
+    Verdict,
+    VisaStatus,
+)
 
 SHARED = Path(__file__).resolve().parents[3] / "packages" / "shared" / "src"
 
@@ -25,6 +32,7 @@ def ts_const(name: str) -> list[str]:
         ("SEVERITIES", Severity),
         ("VERDICTS", Verdict),
         ("VISA_STATUSES", VisaStatus),
+        ("EVIDENCE_KINDS", EvidenceKind),
     ],
 )
 def test_enums_match(ts_name: str, py_type: object) -> None:
