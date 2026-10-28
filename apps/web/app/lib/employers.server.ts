@@ -1,6 +1,7 @@
 import type { DiscoverQuery } from "@jobfit/shared";
 
 import type { Db } from "./db.server";
+import { isPartial } from "./format";
 
 export interface EmployerHit {
   id: string;
@@ -25,6 +26,8 @@ export interface YearStats {
   uscisContinuingDenials: number | null;
   permTotal: number | null;
   permCertified: number | null;
+  /** "YYYY-MM-DD"; before Sept 30 of the fiscal year means the year is partial. */
+  coveredThrough: string | null;
 }
 
 export interface WageBandRow {
@@ -66,6 +69,14 @@ export interface SponsorRow {
   medianPay: number | null;
 }
 
+/** The newest fiscal year with all four quarters (DOL's current-year file is partial),
+ *  else the newest loaded; NULL when nothing is recorded. */
+const LATEST_FULL_FY = `(SELECT coalesce(
+    max("fiscalYear") FILTER (WHERE "coveredThrough" IS NULL
+      OR "coveredThrough" >= make_date("fiscalYear", 9, 30)),
+    max("fiscalYear"))
+  FROM "DatasetVersion" WHERE source = 'LCA')`;
+
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 // ponytail: ILIKE scan over ~100k employers is a few ms; add a pg_trgm index if it isn't.
@@ -80,7 +91,8 @@ export async function searchEmployers(
        FROM "Employer" e
        LEFT JOIN LATERAL (
          SELECT "fiscalYear", "lcaCertified", "changeEmployer" FROM "EmployerYearStats"
-          WHERE "employerId" = e.id ORDER BY "fiscalYear" DESC LIMIT 1
+          WHERE "employerId" = e.id AND "fiscalYear" <= coalesce(${LATEST_FULL_FY}, "fiscalYear")
+          ORDER BY "fiscalYear" DESC LIMIT 1
        ) s ON true
       WHERE e."displayName" ILIKE $1 OR e."normalizedName" ILIKE $1
       ORDER BY s."lcaCertified" DESC NULLS LAST, e."displayName"
@@ -103,14 +115,17 @@ export async function getEmployer(
   if (!employer.rows[0]) return null;
 
   const years = await db.query<YearStats>(
-    `SELECT "fiscalYear", "lcaCertified", "lcaTotal", "changeEmployer" AS transfers,
+    `SELECT s."fiscalYear", "lcaCertified", "lcaTotal", "changeEmployer" AS transfers,
             "newEmployment", "h1bDependent", "willfulViolator", "uscisInitialApprovals",
             "uscisInitialDenials", "uscisContinuingApprovals", "uscisContinuingDenials",
-            "permTotal", "permCertified"
-       FROM "EmployerYearStats" WHERE "employerId" = $1 ORDER BY "fiscalYear"`,
+            "permTotal", "permCertified",
+            to_char(d."coveredThrough", 'YYYY-MM-DD') AS "coveredThrough"
+       FROM "EmployerYearStats" s
+       LEFT JOIN "DatasetVersion" d ON d.source = 'LCA' AND d."fiscalYear" = s."fiscalYear"
+      WHERE "employerId" = $1 ORDER BY s."fiscalYear"`,
     [id],
   );
-  const latest = years.rows.at(-1)?.fiscalYear;
+  const latest = years.rows.filter((y) => !isPartial(y)).at(-1)?.fiscalYear;
   const wageBands = latest
     ? await db.query<WageBandRow>(
         `SELECT "socCode", "titleBucket", "worksiteState", n, "changeEmployer" AS transfers,
@@ -135,7 +150,7 @@ export async function getEmployer(
 
 export async function latestFiscalYear(db: Db): Promise<number | null> {
   const { rows } = await db.query<{ fy: number | null }>(
-    `SELECT max("fiscalYear") AS fy FROM "DatasetVersion" WHERE source = 'LCA'`,
+    `SELECT ${LATEST_FULL_FY} AS fy`,
   );
   return rows[0]?.fy ?? null;
 }

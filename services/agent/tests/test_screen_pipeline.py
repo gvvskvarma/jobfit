@@ -2,7 +2,7 @@ import psycopg
 import pytest
 
 from app import llm, screen
-from app.employer_lookup import state_of, transfer_likelihood
+from app.employer_lookup import lookup_employer, state_of, transfer_likelihood
 from app.llm import LlmFlag, accept_llm_flags, wrap_posting
 from app.schemas import EmployerSignal, EmployerYear, ParsedJD, ScreenFlag, UserContext
 from app.verdict import decide_verdict, summarize
@@ -136,6 +136,28 @@ def test_parse_is_cached_by_posting_text(seeded: psycopg.Connection, fake_llm) -
     screen.screen_job(seeded, CLEAN_JD, UserContext())
     screen.screen_job(seeded, "  " + CLEAN_JD.replace("\n", "\n  "), UserContext())
     assert calls["parse_jd"] == 1
+
+
+def test_partial_years_are_left_out_of_the_screen(seeded: psycopg.Connection) -> None:
+    """A cumulative current-year file covers part of the year, so it would understate filings."""
+    (emp,) = seeded.execute(
+        """SELECT id FROM "Employer" WHERE "normalizedName" = 'ZZTEST ROBOTICS'"""
+    ).fetchone()
+    seeded.execute(
+        """INSERT INTO "DatasetVersion"
+             (source, "fiscalYear", "sourceUrl", sha256, "coveredThrough")
+           VALUES ('LCA', %s, 'test', 'test', make_date(%s, 6, 30))""",
+        (FY + 1, FY + 1),
+    )
+    seeded.execute(
+        """INSERT INTO "EmployerYearStats" ("employerId", "fiscalYear", "lcaCertified",
+             "lcaTotal", "changeEmployer", "newEmployment", "h1bDependent", "willfulViolator")
+           VALUES (%s, %s, 5, 5, 0, 0, false, false)""",
+        (emp, FY + 1),
+    )
+    signal = lookup_employer(seeded, "ZZTest Robotics Inc.", "Frontend Engineer", "Austin, TX")
+    assert [y.fiscal_year for y in signal.years] == [FY - 1, FY]
+    assert signal.transfer_likelihood == "high"
 
 
 def test_rejects_empty_and_huge_postings(db: psycopg.Connection) -> None:

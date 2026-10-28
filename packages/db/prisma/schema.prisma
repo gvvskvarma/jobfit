@@ -252,12 +252,14 @@ model WageBand {
 }
 
 model DatasetVersion {
-  id         String   @id @default(dbgenerated("(gen_random_uuid())::text"))
-  source     String // "LCA" | "USCIS" | "PERM"
-  fiscalYear Int
-  sourceUrl  String
-  sha256     String
-  loadedAt   DateTime @default(now())
+  id             String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  source         String // "LCA" | "USCIS" | "PERM"
+  fiscalYear     Int
+  sourceUrl      String
+  sha256         String
+  /// Last day the loaded files cover. Earlier than Sept 30 of fiscalYear means a partial year.
+  coveredThrough DateTime? @db.Date
+  loadedAt       DateTime  @default(now())
 
   @@unique([source, fiscalYear])
 }

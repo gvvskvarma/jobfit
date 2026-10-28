@@ -44,8 +44,11 @@ def lookup_employer(
             WHERE "normalizedName" = %s OR %s = ANY(aliases) LIMIT 1""",
         (key, company.strip()),
     ).fetchone()
+    # Partial years (the current year's cumulative file) would understate every employer.
     latest = cur.execute(
-        """SELECT max("fiscalYear") AS fy FROM "DatasetVersion" WHERE source = 'LCA'"""
+        """SELECT coalesce(max("fiscalYear") FILTER (WHERE "coveredThrough" IS NULL
+                 OR "coveredThrough" >= make_date("fiscalYear", 9, 30)), max("fiscalYear")) AS fy
+             FROM "DatasetVersion" WHERE source = 'LCA'"""
     ).fetchone()
     if not emp or not latest or latest["fy"] is None:
         return EmployerSignal(employer=company, matched=False)
@@ -54,8 +57,9 @@ def lookup_employer(
     rows = cur.execute(
         """SELECT "fiscalYear", "lcaCertified", "changeEmployer", "permCertified",
                   "h1bDependent", "willfulViolator"
-             FROM "EmployerYearStats" WHERE "employerId" = %s ORDER BY "fiscalYear" """,
-        (emp["id"],),
+             FROM "EmployerYearStats" WHERE "employerId" = %s AND "fiscalYear" <= %s
+            ORDER BY "fiscalYear" """,
+        (emp["id"], latest_fy),
     ).fetchall()
     years = [
         EmployerYear(
@@ -69,8 +73,8 @@ def lookup_employer(
     bucket = title_bucket(job_title)
     by_year = cur.execute(
         """SELECT "fiscalYear" AS fy, sum("changeEmployer")::int AS transfers FROM "WageBand"
-            WHERE "employerId" = %s AND "titleBucket" = %s GROUP BY 1""",
-        (emp["id"], bucket),
+            WHERE "employerId" = %s AND "titleBucket" = %s AND "fiscalYear" <= %s GROUP BY 1""",
+        (emp["id"], bucket, latest_fy),
     ).fetchall()
     state = state_of(location)
     # Closest pay group: same bucket, same state if we know it, largest group first.

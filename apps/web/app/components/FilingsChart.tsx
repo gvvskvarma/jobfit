@@ -3,6 +3,7 @@ import { useRef } from "react";
 import {
   Bar,
   CartesianGrid,
+  Cell,
   ComposedChart,
   Line,
   ResponsiveContainer,
@@ -12,7 +13,7 @@ import {
   type TooltipContentProps,
 } from "recharts";
 
-import { formatCount } from "~/lib/format";
+import { formatCount, fyLabel, isPartial } from "~/lib/format";
 import type { YearStats } from "~/lib/employers.server";
 
 const SERIES = [
@@ -32,7 +33,7 @@ function ChartTooltip({ active, payload, label }: TooltipContentProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-[var(--radius-sheet)] border border-rule bg-sheet px-3 py-2 text-sm shadow-none">
-      <p className="font-semibold">FY{label}</p>
+      <p className="font-semibold">{label}</p>
       {SERIES.map((s) => {
         const value = payload.find((p) => p.dataKey === s.key)?.value;
         return (
@@ -82,13 +83,13 @@ export function FilingsChart({ years }: { years: YearStats[] }) {
       <div ref={ref} className="h-64 w-full" aria-hidden>
         <ResponsiveContainer key={seen ? "seen" : "idle"}>
           <ComposedChart
-            data={years}
+            data={years.map((y) => ({ ...y, label: fyLabel(y) }))}
             margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
           >
             <CartesianGrid vertical={false} stroke="var(--grid)" />
             <XAxis
-              dataKey="fiscalYear"
-              tickFormatter={(fy: number) => `FY${fy}`}
+              dataKey="label"
+              tickFormatter={(l: string) => l.replace(/ \(.*/, "*")}
               tickLine={false}
               axisLine={{ stroke: "var(--rule)" }}
               tick={{ fill: "var(--ink-muted)", fontSize: 13 }}
@@ -114,7 +115,12 @@ export function FilingsChart({ years }: { years: YearStats[] }) {
               maxBarSize={24}
               radius={[4, 4, 0, 0]}
               isAnimationActive={animate}
-            />
+            >
+              {/* A partial year is drawn faded so its shorter bar isn't read as a drop. */}
+              {years.map((y) => (
+                <Cell key={y.fiscalYear} fillOpacity={isPartial(y) ? 0.4 : 1} />
+              ))}
+            </Bar>
             <Line
               dataKey="transfers"
               stroke="var(--chart-transfers)"
@@ -130,6 +136,12 @@ export function FilingsChart({ years }: { years: YearStats[] }) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+      {years.some(isPartial) && (
+        <figcaption className="mt-2 text-xs text-ink-muted">
+          * {years.filter(isPartial).map(fyLabel).join(", ")}: a partial year,
+          so its counts are lower than a full year&apos;s.
+        </figcaption>
+      )}
     </figure>
   );
 }
